@@ -48,7 +48,7 @@ export default class LoginPage {
         return this.page.locator(this.Elements.invalidCredentialserrorMessage);
     }
 
-    //Getting the error message for enter valid Email Error message yolo 
+    //Getting the error message for enter valid Email Error message.
     getEnterEmailErrorMessage(){
        this.page.waitForTimeout(3000);
         return this.page.locator(this.Elements.enterEmailErrorMessage);
