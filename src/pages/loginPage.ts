@@ -42,11 +42,13 @@ export default class LoginPage {
         await this.base.waitAndClick(this.Elements.loginBtn);
     }
 
+    //Getting the error message for invalid credentials
      getInvalidCredentialsErrorMessage() {
         this.page.waitForTimeout(3000);
         return this.page.locator(this.Elements.invalidCredentialserrorMessage);
     }
 
+    //Getting the error message for enter valid Email Error message
     getEnterEmailErrorMessage(){
        this.page.waitForTimeout(3000);
         return this.page.locator(this.Elements.enterEmailErrorMessage);
