@@ -1,9 +1,9 @@
 import { expect, Page } from "@playwright/test";
 import PlaywrightWrapper from "../helper/wrapper/PlaywrightWrappers";
 
-
 export default class LoginPage {
-    private base: PlaywrightWrapper
+    private base: PlaywrightWrapper;
+
     constructor(private page: Page) {
         this.base = new PlaywrightWrapper(page);
     }
@@ -12,8 +12,8 @@ export default class LoginPage {
         usernameInput: '[id="mat-input-0"]',
         passwordInput: '[id="mat-input-1"]',
         loginBtn: "//button[text()=' Log In ']",
-        invalidCredentialserrorMessage: "//span[text()='Invalid credentials']",
-        enterEmailErrorMessage: "//mat-error[text()=' Please enter the email ']",
+        invalidCredentialsErrorMessage: "//span[text()='Invalid credentials']",
+        enterEmailErrorMessage: "//mat-error[text()=' Please enter the email ']"
     }
 
     async navigateToLoginPage() {
@@ -21,38 +21,35 @@ export default class LoginPage {
         await expect(this.page).toHaveTitle("Asset Management");
     }
 
-    async clickOnUserNameField()
-    {
-        await this.page.locator(this.Elements.usernameInput).click();
+    async clickOnUserNameField() {
+        await this.base.waitAndClick(this.Elements.usernameInput);
     }
 
-    async clickOnPasswordField()
-    {
-        await this.page.locator(this.Elements.passwordInput).click();
+    async clickOnPasswordField() {
+        await this.base.waitAndClick(this.Elements.passwordInput);
     }
 
     async enterUserName(user: string) {
-        await this.page.locator(this.Elements.usernameInput).fill(user);
+        await this.base.typeText(this.Elements.usernameInput, user);
     }
-    async enterPassword(Password: string) {
-        await this.page.locator(this.Elements.passwordInput).fill(Password);
+
+    async enterPassword(password: string) {
+        await this.base.typeText(this.Elements.passwordInput, password);
     }
 
     async clickLoginButton() {
         await this.base.waitAndClick(this.Elements.loginBtn);
     }
 
-    //Getting the error message for invalid credentials
-     getInvalidCredentialsErrorMessage() {
-        this.page.waitForTimeout(3000);
-        return this.page.locator(this.Elements.invalidCredentialserrorMessage);
+    // Get locator for invalid credentials error message
+    async getInvalidCredentialsErrorMessage() {
+        await this.base.waitForElement(this.Elements.invalidCredentialsErrorMessage);
+        return this.page.locator(this.Elements.invalidCredentialsErrorMessage);
     }
 
-    //Getting the error message for enter valid Email Error message.
-    getEnterEmailErrorMessage(){
-       this.page.waitForTimeout(3000);
+    // Get locator for missing email error message
+    getEnterEmailErrorMessage() {
         return this.page.locator(this.Elements.enterEmailErrorMessage);
-
     }
 
     async loginUser(user: string, password: string) {
@@ -60,6 +57,4 @@ export default class LoginPage {
         await this.enterPassword(password);
         await this.clickLoginButton();
     }
-
-
 }
