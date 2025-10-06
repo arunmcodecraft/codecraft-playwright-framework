@@ -3,9 +3,9 @@ import { expect } from "@playwright/test";
 import { fixture } from "../../hooks/pageFixture";
 import LoginPage from "../../pages/loginPage";
 import { ExcelUtils } from "../../helper/readFromExcel/excelUtils";
-import * as paths from "../../helper/config/paths.json";
+import * as configuration from "../../helper/Commonconfig/configuration.json";
 
-setDefaultTimeout(60 * 1000 * 2);
+setDefaultTimeout(configuration.defaultTimeOut);
 
 let loginPage: LoginPage;
 
@@ -21,7 +21,7 @@ Given('User log in with data {string}', async function (dataKey: string) {
     loginPage = new LoginPage(fixture.page);
     const sheetName = process.env.ENV || 'staging';
     fixture.logger.info(`Reading data from sheet: ${sheetName}`);
-    const allData = await ExcelUtils.readData(paths.testDataLocation, sheetName);
+    const allData = await ExcelUtils.readData(configuration.testDataLocation, sheetName);
     const loginData = allData.find(row => row.Key === dataKey);
 
     if (loginData) {
