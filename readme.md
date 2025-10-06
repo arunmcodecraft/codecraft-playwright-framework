@@ -52,6 +52,59 @@ TypeScript is a powerful superset of JavaScript that adds optional static typing
 npm run test --TAGS="@test or @add"
 ```
 
+8. Commands for running 
+
+Run All Tests (Default)
+
+Runs the complete test flow including report generation.
+
+npm test
+
+
+Includes:
+
+pretest → Initializes report setup
+
+test → Executes all tests using cucumber-js
+
+posttest → Generates final test report
+
+🔁 Rerun Failed Tests
+
+Runs only the scenarios listed in the rerun.txt file.
+
+npm run test:failed
+
+🌐 Run All Tests (Staging Environment)
+
+Runs all tests on the staging environment.
+
+npm run test:all
+
+🚀 Smoke Tests
+
+Runs only smoke test scenarios (tagged with @smoke).
+
+npm run test:smoke
+
+🧩 Regression Tests
+
+Runs only regression test scenarios (tagged with @regression).
+
+npm run test:regression
+
+🧭 Staging Environment Tests
+
+Runs all tests specifically on the staging environment.
+
+npm run test:staging
+
+✅ Sanity Tests (Production)
+
+Runs sanity test scenarios on the production environment.
+
+npm run test:sanity
+
 ### Folder structure
 0. `src\pages` -> All the page (UI screen)
 1. `src\test\features` -> write your features here
