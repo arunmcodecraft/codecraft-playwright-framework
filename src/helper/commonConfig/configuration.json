@@ -1,4 +1,4 @@
 {
-  "testDataLocation": "D://Coding//play//src//helper//util//test-data//testData.xlsx",
+  "testDataLocation": "D://Coding//play//src//helper//util//test-data//testData.csv",
   "defaultTimeOut":  120000
 }

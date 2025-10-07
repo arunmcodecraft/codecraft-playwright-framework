@@ -57,4 +57,9 @@ export default class LoginPage {
         await this.enterPassword(password);
         await this.clickLoginButton();
     }
+
+    
+    async navigateToDashboardPage() {
+        await expect(this.page).toHaveTitle("Asset Management");
+    }
 }

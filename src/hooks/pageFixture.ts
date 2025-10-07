@@ -2,7 +2,8 @@ import { Page } from "@playwright/test";
 import { Logger } from "winston";
 
 export const fixture = {
-    // @ts-ignore
     page: undefined as Page,
-    logger: undefined as Logger
-}
+    logger: undefined as Logger,
+    testData: {} as Record<string, any>,   // scenario-level test data
+    env: "" as string,                     // ✅ environment (staging, prod, etc.)
+};

@@ -2,7 +2,6 @@ import { Given, When, Then, setDefaultTimeout } from "@cucumber/cucumber";
 import { expect } from "@playwright/test";
 import { fixture } from "../../hooks/pageFixture";
 import LoginPage from "../../pages/loginPage";
-import { ExcelUtils } from "../../helper/readFromExcel/excelUtils";
 import * as configuration from "../../helper/Commonconfig/configuration.json";
 
 setDefaultTimeout(configuration.defaultTimeOut);
@@ -10,48 +9,46 @@ setDefaultTimeout(configuration.defaultTimeOut);
 let loginPage: LoginPage;
 
 Given('User navigates to the application', async function () {
-    fixture.logger.info(`Navigating to the application at URL: ${process.env.BASEURL}`);
-    await fixture.page.goto(process.env.BASEURL);
-    fixture.logger.info("Application navigation complete.");
-    loginPage = new LoginPage(fixture.page);
-}); 
-
-Given('User log in with data {string}', async function (dataKey: string) {
-    fixture.logger.info(`Attempting to log in with data key: ${dataKey}`);
-    loginPage = new LoginPage(fixture.page);
-    const sheetName = process.env.ENV || 'staging';
-    fixture.logger.info(`Reading data from sheet: ${sheetName}`);
-    const allData = await ExcelUtils.readData(configuration.testDataLocation, sheetName);
-    const loginData = allData.find(row => row.Key === dataKey);
-
-    if (loginData) {
-        fixture.logger.info(`Data found: Username - ${loginData.userName}, Password - ${loginData.password}`);
-        await loginPage.loginUser(loginData.userName, loginData.password);
-        fixture.logger.info('Login action initiated with provided credentials.');
-    } else {
-        fixture.logger.error(`Data for key '${dataKey}' not found in Excel sheet.`);
-        throw new Error(`Data for key '${dataKey}' not found.`);
+    const url = process.env.BASEURL;
+    if (!url) {
+        throw new Error("❌ BASEURL is undefined. Check your .env file and dotenv.config()");
     }
+
+    fixture.logger.info(`Navigating to the application at URL: ${url}`);
+    await fixture.page.goto(url);  // fixture.page must already be initialized in Before hook
+    fixture.logger.info("Application navigation complete.");
+
+    loginPage = new LoginPage(fixture.page);
 });
 
-Given('User enter the username as {string}', async function (username) {
-    fixture.logger.info(`Entering username: ${username}`);
-    await loginPage.enterUserName(username);
-    fixture.logger.info('Username entered successfully.');
+// ----------------- Login with scenario-level data -----------------
+Given('User logs in', async function () {
+    loginPage = new LoginPage(fixture.page);
+    const { userName, password } = fixture.testData;
+    fixture.logger.info(`Logging in with Username: ${userName}`);
+    await loginPage.loginUser(userName, password);
+    fixture.logger.info("Login action initiated with scenario-level credentials.");
 });
 
-Given('User enter the password as {string}', async function (password) {
-    fixture.logger.info(`Entering password: ${password}`);
-    await loginPage.enterPassword(password);
-    fixture.logger.info('Password entered successfully.');
+// ----------------- Optional: separate username/password steps -----------------
+Given('User enters username', async function () {
+    await loginPage.enterUserName(fixture.testData.userName);
+    fixture.logger.info(`Entered username: ${fixture.testData.userName}`);
 });
 
-When('User click on the login button', async function () {
+Given('User enters password', async function () {
+    await loginPage.enterPassword(fixture.testData.password);
+    fixture.logger.info(`Entered password: ${fixture.testData.password}`);
+});
+
+// ----------------- Login button -----------------
+When('User clicks on the login button', async function () {
     fixture.logger.info('Clicking the login button.');
     await loginPage.clickLoginButton();
     fixture.logger.info('Login button clicked.');
 });
 
+// ----------------- Valid Login -----------------
 Then('Login should be success', async function () {
     const user = fixture.page.locator("//button[contains(@class,'mat-focus-indicator mat-menu-trigger')]//span[1]");
     fixture.logger.info('Verifying user is visible on the page.');
@@ -60,22 +57,24 @@ Then('Login should be success', async function () {
     fixture.logger.info(`Login successful. User name displayed: ${userName}`);
 });
 
+// ----------------- Invalid Login -----------------
 Then('Login should fail with error message {string}', async function (errorMessage) {
     fixture.logger.info(`Verifying login failure with error message: "${errorMessage}"`);
-    const failureMesssage = await loginPage.getInvalidCredentialsErrorMessage();
-    fixture.logger.info(`Actual error message found on page: ${await failureMesssage.textContent()}`);
-    await expect(failureMesssage).toBeVisible();
-    await expect(failureMesssage).toHaveText(errorMessage);
+    const failureMessage = await loginPage.getInvalidCredentialsErrorMessage();
+    fixture.logger.info(`Actual error message on page: ${await failureMessage.textContent()}`);
+    await expect(failureMessage).toBeVisible();
+    await expect(failureMessage).toHaveText(errorMessage);
     fixture.logger.info('Error message verified successfully.');
 });
 
-When('User Click on Useraname field', async function () {
+// ----------------- Field interaction helpers -----------------
+When('User Clicks on Useraname field', async function () {
     fixture.logger.info('Clicking on the username field.');
     await loginPage.clickOnUserNameField();
     fixture.logger.info('Username field clicked.');
 });
 
-Then('User Click on password field', async function () {
+Then('User Clicks on password field', async function () {
     fixture.logger.info('Clicking on the password field.');
     await loginPage.clickOnPasswordField();
     fixture.logger.info('Password field clicked.');
@@ -83,9 +82,9 @@ Then('User Click on password field', async function () {
 
 Then('Check the {string} error message', async function (errorMessage) {
     fixture.logger.info(`Checking for error message: "${errorMessage}"`);
-    const failureMesssage = loginPage.getEnterEmailErrorMessage();
-    fixture.logger.info(`Actual message found: ${await (await loginPage.getEnterEmailErrorMessage()).textContent()}`);
-    await expect(failureMesssage).toBeVisible();
-    await expect(failureMesssage).toHaveText(errorMessage);
+    const failureMessage = loginPage.getEnterEmailErrorMessage();
+    fixture.logger.info(`Actual message found: ${await (await failureMessage).textContent()}`);
+    await expect(failureMessage).toBeVisible();
+    await expect(failureMessage).toHaveText(errorMessage);
     fixture.logger.info('Error message verified successfully.');
 });
