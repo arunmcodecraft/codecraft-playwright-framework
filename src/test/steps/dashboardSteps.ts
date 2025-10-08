@@ -8,7 +8,7 @@ setDefaultTimeout(configuration.defaultTimeOut);
 
 let loginPage: LoginPage;
 
-Given('User navigates to the dashboard page', async function () {
+Given('User should be landed to Dashboard page', async function () {
     loginPage = new LoginPage(fixture.page);
     await loginPage.navigateToDashboardPage();
 });

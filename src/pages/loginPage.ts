@@ -60,6 +60,6 @@ export default class LoginPage {
 
     
     async navigateToDashboardPage() {
-        await expect(this.page).toHaveTitle("Asset Management");
+        await expect(this.page).toHaveTitle("Asset Managements");
     }
 }
