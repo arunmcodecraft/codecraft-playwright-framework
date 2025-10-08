@@ -1,5 +1,5 @@
-TestCaseID,Env,userName,password
-Login_01,staging,arunfeder@gmail.com,Apple@1234567
-Login_01,prod,arunfeder@gmail.com,Apple@1234567
-Login_02,staging,arunfeder@gmail.com,Apple@123456
-Login_02,prod,arunfeder@gmail.com,Apple@123456
+TestCaseID|Env|userName|password
+Login_01|staging|arunfeder@gmail.com|Apple@1234567
+Login_01|prod|arunfeder@gmail.com|Apple@1234567
+Login_02|staging|arunfeder@gmail.com|Apple@123456
+Login_02|prod|arunfeder@gmail.com|Apple@123456

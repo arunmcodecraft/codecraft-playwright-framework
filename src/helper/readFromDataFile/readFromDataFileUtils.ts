@@ -20,7 +20,7 @@ export class readFromDataFileUtils {
         }
     }
 
-    // ✅ Read CSV data
+    // ✅ Read CSV data (supports | as delimiter)
     public static async readCSV(filePath: string): Promise<any[]> {
         try {
             if (!fs.existsSync(filePath)) {
@@ -28,9 +28,13 @@ export class readFromDataFileUtils {
             }
 
             const fileContent = fs.readFileSync(filePath, { encoding: 'utf-8' });
+
+            // 🟡 Use '|' as the delimiter instead of ',' 
             const records = parse(fileContent, {
-                columns: true,   // use first row as headers
-                skip_empty_lines: true
+                columns: true,          // Use first row as headers
+                skip_empty_lines: true,
+                delimiter: '|',          // 👈 Key change here
+                trim: true               // Trim spaces around values
             });
 
             return records;
