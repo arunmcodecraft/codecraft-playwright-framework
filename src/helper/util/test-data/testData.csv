@@ -1,5 +1,4 @@
-TestCaseID|Env|userName|password
-Login_01|staging|arunfeder@gmail.com|Apple@1234567
-Login_01|prod|arunfeder@gmail.com|Apple@1234567
-Login_02|staging|arunfeder@gmail.com|Apple@123456
-Login_02|prod|arunfeder@gmail.com|Apple@123456
+Key|Env|userName|password
+Login_01|STG|arunfeder@gmail.com|Apple@1234567
+Login_01|DEV|arunfeder@gmail.com|Apple@1234567
+Login_01|PRD|arunfeder@gmail.com|Apple@123456

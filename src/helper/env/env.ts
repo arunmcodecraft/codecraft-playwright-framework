@@ -1,6 +1,7 @@
 import * as dotenv from 'dotenv'
 
 export const getEnv = () => {
+    console.log(`process.env.ENV is ${process.env.ENV}`);
     if (process.env.ENV) {
         dotenv.config({
             override: true,

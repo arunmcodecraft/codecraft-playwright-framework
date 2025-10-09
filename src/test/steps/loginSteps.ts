@@ -9,6 +9,7 @@ setDefaultTimeout(configuration.defaultTimeOut);
 let loginPage: LoginPage;
 
 Given('User navigates to the application', async function () {
+    console.log('process.env.BASEURL is ' + process.env.BASEURL);
     const url = process.env.BASEURL;
     if (!url) {
         throw new Error("❌ BASEURL is undefined. Check your .env file and dotenv.config()");

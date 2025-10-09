@@ -12,10 +12,11 @@ import { fixture } from "./pageFixture";
 import { invokeBrowser } from "../helper/browsers/browserManager";
 import { createLogger } from "winston";
 import { options } from "../helper/util/logger";
-import { readFromDataFileUtils } from "../helper/readFromDataFile/readFromDataFileUtils";
+import { CSVParser } from "../helper/parsers/CSVParser";
 import * as configuration from "../helper/Commonconfig/configuration.json";
+import * as fs from "fs-extra";
+import * as path from "path";
 import { getEnv } from "../helper/env/env";
-const fs = require("fs-extra");
 
 // ----------------- Global Variables -----------------
 let browser: Browser;
@@ -34,31 +35,45 @@ BeforeAll(async function () {
 // 🧩 BEFORE SCENARIO — Setup context, page, and data per scenario
 // ================================================================
 Before(async function ({ pickle }) {
-    const scenarioName = pickle.name + "_" + pickle.id;
-    const env = process.env.ENV || "staging";
+    const scenarioName = `${pickle.name}_${pickle.id}`;
+    const env = process.env.ENV || "STG";
     fixture.env = env;
 
-    // 🔹 Extract Module and TestCaseID from Scenario name
-    const moduleMatch = pickle.name.match(/^[A-Za-z]+/); // e.g., "Login"
-    const keyMatch = pickle.name.match(/[A-Za-z]+_\d+/); // e.g., "Login_01"
+    // Extract Module (first word of scenario name)
+    const moduleMatch = pickle.name.match(/^[A-Za-z]+/);
     const moduleName = moduleMatch ? moduleMatch[0] : "Generic";
-    const testCaseID = keyMatch ? keyMatch[0] : null;
 
-    // 🔹 Load CSV data dynamically
-    if (testCaseID) {
-        const allData = await readFromDataFileUtils.readCSV(configuration.testDataLocation);
-        const testData = allData.find(
-            (row: any) =>
-                row.TestCaseID === testCaseID &&
-                row.Env.toLowerCase() === env.toLowerCase() &&
-                (row.Module ? row.Module === moduleName : true)
-        );
+    // Extract Key from scenario tag @Key=XYZ
+    const keyTag = pickle.tags.find(tag => tag.name.startsWith("@Key="));
+    const key = keyTag ? keyTag.name.replace("@Key=", "").trim() : null;
 
-        if (!testData) throw new Error(`❌ No CSV data found for ${testCaseID} in Env=${env}, Module=${moduleName}`);
+    if (key) {
+        // 🔹 Use relative path for CSV (portable)
+        const csvFilePath = path.join(__dirname, "../helper/util/test-data/testData.csv");
+        const allData = await CSVParser.parseData(csvFilePath, '|');
+
+        // 🔹 Find the row matching Key + Env + Module
+        const testData = allData.find((row: any) => {
+            const csvKey = row.Key ?? row.TestCaseID ?? row.key ?? row.testcaseid;
+            const csvEnv = row.Env ?? row.env;
+            const csvModule = row.Module ?? row.module ?? moduleName;
+
+            return (
+                csvKey === key &&
+                csvEnv?.toLowerCase() === env.toLowerCase() &&
+                (row.Module ? csvModule === moduleName : true)
+            );
+        });
+
+        if (!testData) throw new Error(`❌ No CSV data found for Key=${key} in Env=${env}, Module=${moduleName}`);
         fixture.testData = testData;
+
+        fixture.logger?.info(`🔹 Loaded scenario data → Module: ${moduleName}, Key: ${key}, Env: ${env}`);
+    } else {
+        fixture.logger?.info("⚠️ No @Key tag found — skipping CSV data load");
     }
 
-    // 🔹 Setup context & page
+    // 🔹 Setup browser context & page
     const isAuthScenario = pickle.tags.some(tag => tag.name === "@auth");
     context = await browser.newContext({
         viewport: null,
@@ -81,7 +96,7 @@ Before(async function ({ pickle }) {
 });
 
 // ================================================================
-// 🧩 STEP HOOKS — Step-wise logging and failure screenshots
+// 🧩 STEP HOOKS — Step-wise logging
 // ================================================================
 BeforeStep(async function ({ pickleStep }) {
     fixture.logger?.info(`🟡 Step started → ${pickleStep.text}`);
@@ -108,27 +123,18 @@ AfterStep(async function ({ pickleStep, result }) {
 // ================================================================
 After(async function ({ pickle, result }) {
     const scenarioPath = `./test-results/trace/${pickle.id}.zip`;
-
-    // Stop tracing and close resources
     await context.tracing.stop({ path: scenarioPath });
 
-    let videoPath: string | undefined;
-    let img: Buffer | undefined;
-
     if (result?.status === Status.PASSED) {
-        img = await fixture.page.screenshot({
-            path: `./test-results/screenshots/${pickle.name}.png`,
-            type: "png"
-        });
+        const img = await fixture.page.screenshot({ path: `./test-results/screenshots/${pickle.name}.png`, type: "png" });
         await this.attach(img, "image/png");
 
-        videoPath = await fixture.page.video()?.path();
+        const videoPath = await fixture.page.video()?.path();
         if (videoPath && fs.existsSync(videoPath)) {
             await this.attach(fs.readFileSync(videoPath), "video/webm");
         }
 
-        const traceFileLink = `<a href="https://trace.playwright.dev/" target="_blank">Open Trace</a>`;
-        await this.attach(`Trace file: ${traceFileLink}`, "text/html");
+        await this.attach(`<a href="https://trace.playwright.dev/" target="_blank">Open Trace</a>`, "text/html");
     } else if (result?.status === Status.FAILED) {
         fixture.logger?.error(`❌ Scenario failed: ${pickle.name}`);
     }
@@ -138,7 +144,7 @@ After(async function ({ pickle, result }) {
 });
 
 // ================================================================
-// 🧩 AFTER ALL — Close Browser once all tests done
+// 🧩 AFTER ALL — Close browser
 // ================================================================
 AfterAll(async function () {
     await browser.close();
@@ -150,6 +156,6 @@ AfterAll(async function () {
 // ================================================================
 function getStorageState(user: string) {
     if (user.endsWith("admin")) return "src/helper/auth/admin.json";
-    else if (user.endsWith("lead")) return "src/helper/auth/lead.json";
-    else return undefined;
+    if (user.endsWith("lead")) return "src/helper/auth/lead.json";
+    return undefined;
 }
