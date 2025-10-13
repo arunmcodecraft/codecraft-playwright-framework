@@ -2,3 +2,13 @@ Key|Env|userName|password
 Login_01|STG|arunfeder@gmail.com|Apple@1234567
 Login_01|DEV|arunfeder@gmail.com|Apple@1234567
 Login_01|PRD|arunfeder@gmail.com|Apple@123456
+
+Key|Env|userName|password|PartnerName|PartnerAge
+Login_02|STG|arunfeder@gmail.com|Apple@1234567|Arun|12
+Login_02|DEV|arunfeder@gmail.com|Apple@1234567|Arun|25
+Login_02|PRD|arunfeder@gmail.com|Apple@123456 |Arun|28
+
+Key|Env|userName|password|Designation
+Login_03|STG|arunfeder@gmail.com|Apple@1234567|Tester
+Login_03|DEV|arunfeder@gmail.com|Apple@1234567|Dev
+Login_03|PRD|arunfeder@gmail.com|Apple@123456 |QA

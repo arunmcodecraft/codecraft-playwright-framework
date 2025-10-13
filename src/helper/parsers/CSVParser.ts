@@ -10,14 +10,13 @@ export class DataProviderError extends Error {
 export class CSVParser {
     /**
      * Parses a CSV file into an array of data rows.
+     * Supports multiple header blocks in the same file.
      * @param filePath Path to CSV file
      * @param separator Separator (default: '|')
-     * @param uniqColName Column to detect header row (default: 'Key')
      */
     static async parseData(
         filePath: string,
-        separator: string = '|',
-        uniqColName: string = 'Key'
+        separator: string = '|'
     ): Promise<Record<string, string>[]> {
         if (!filePath || filePath.trim().length === 0) {
             throw new DataProviderError('filePath must be a non-empty string.');
@@ -26,63 +25,39 @@ export class CSVParser {
         let fileContent: string;
         try {
             fileContent = await fs.readFile(filePath, 'utf8');
-            fileContent = fileContent.replace(/^\uFEFF/, ''); // remove BOM if present
+            fileContent = fileContent.replace(/^\uFEFF/, ''); // remove BOM
         } catch (err) {
             throw new DataProviderError(`Error reading CSV file ${filePath}`, err);
         }
 
-        const rows: Record<string, string>[] = [];
+        const data: Record<string, string>[] = [];
         const lines = fileContent
             .split(/\r?\n/)
             .map(l => l.trim())
-            .filter(l => l.length > 0); // remove blank lines
+            .filter(l => l.length > 0);
 
-        let headers: string[] | null = null;
+        let headers: string[] = [];
 
-        for (let i = 0; i < lines.length; i++) {
-            const lineNumber = i + 1;
-            const line = lines[i];
-
+        for (const line of lines) {
             // Skip comments
             if (line.startsWith('#') || line.startsWith('!')) continue;
 
-            // Detect header row robustly
-            if (!headers) {
-                const columns = CSVParser.parseLine(line, separator);
-                const hasKeyColumn = columns.some(c => c.trim().toLowerCase() === uniqColName.toLowerCase());
-                if (hasKeyColumn) {
-                    headers = columns;
-                    continue;
-                }
-            }
+            const cols = line.split(separator).map(c => c.trim());
 
-            if (!headers) {
-                throw new DataProviderError(
-                    `Header row (containing '${uniqColName}') not found before data at line ${lineNumber}.`
-                );
-            }
-
-            const values = CSVParser.parseLine(line, separator);
-
-            if (values.length !== headers.length) {
-                console.warn(
-                    `Header/Value mismatch at line ${lineNumber}. Expected ${headers.length}, got ${values.length}. Skipping row.`
-                );
+            // Detect a new header row (starts with Key and Env)
+            if (cols.some(c => c.toLowerCase() === 'key') && cols.some(c => c.toLowerCase() === 'env')) {
+                headers = cols;
                 continue;
             }
 
-            const map: Record<string, string> = {};
-            headers.forEach((h, idx) => {
-                map[h.trim()] = values[idx].trim();
-            });
+            if (!headers.length) continue;
 
-            rows.push(map);
+            // Map row values
+            const row: Record<string, string> = {};
+            headers.forEach((h, i) => row[h] = cols[i] ?? '');
+            data.push(row);
         }
 
-        return rows;
-    }
-
-    static parseLine(line: string, sep: string): string[] {
-        return line.split(sep).map(c => c.trim());
+        return data;
     }
 }

@@ -6,7 +6,7 @@ Feature: Login Feature
     When User logs in
     Then User should be landed to Dashboard page
 
-  @Key=Login_01 @smoke
+  @Key=Login_03 @smoke
   Scenario: Login with invalid credentials
     Given User navigates to the application
     When User logs in

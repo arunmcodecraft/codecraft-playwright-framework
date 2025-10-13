@@ -25,8 +25,10 @@ Given('User navigates to the application', async function () {
 // ----------------- Login with scenario-level data -----------------
 Given('User logs in', async function () {
     loginPage = new LoginPage(fixture.page);
-    const { userName, password } = fixture.testData;
+    const { userName, password,PartnerAge,PartnerName,Designation} = fixture.testData;
     fixture.logger.info(`Logging in with Username: ${userName}`);
+    fixture.logger.info(`Logging in with Password: ${password}`);
+    fixture.logger.info(`Logging in with Designation: ${Designation}`);
     await loginPage.loginUser(userName, password);
     fixture.logger.info("Login action initiated with scenario-level credentials.");
 });
