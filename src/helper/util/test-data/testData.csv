@@ -1,4 +1,9 @@
-Key|Env|userName|password
-Login_01|STG|arunfeder@gmail.com|Apple@1234567
-Login_01|DEV|arunfeder@gmail.com|Apple@1234567
+Key|Env|username|password
+Login_01|STG|arunfeder@gmail.com|Apple@123456
+Login_01|DEV|arunfeder@gmail.com|Apple@123456
 Login_01|PRD|arunfeder@gmail.com|Apple@123456
+
+Key|Env|username|password|items
+Login_02|STG|arunfeder@gmail.com|Apple@1234566|[abc,xyz,pqr]
+Login_02|DEV|arunfeder@gmail.com|Apple@1234567|[abc,xyz,pqr]
+Login_02|PRD|arunfeder@gmail.com|Apple@1234568|[abc,xyz,pqr]

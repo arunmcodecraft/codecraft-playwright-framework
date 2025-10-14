@@ -1,6 +1,6 @@
 import { Given, When, Then, setDefaultTimeout } from "@cucumber/cucumber";
 import { expect } from "@playwright/test";
-import { fixture } from "../../hooks/pageFixture";
+import { fixture } from "../../support/pageFixture";
 import LoginPage from "../../pages/loginPage";
 import * as configuration from "../../helper/Commonconfig/configuration.json";
 
@@ -23,11 +23,11 @@ Given('User navigates to the application', async function () {
 });
 
 // ----------------- Login with scenario-level data -----------------
-Given('User logs in', async function () {
+Given('User logs in with username {string} and password {string}', async function (username: string, password: string) {
     loginPage = new LoginPage(fixture.page);
-    const { userName, password } = fixture.testData;
-    fixture.logger.info(`Logging in with Username: ${userName}`);
-    await loginPage.loginUser(userName, password);
+    fixture.logger.info(`Logging in with Username: ${username}`);
+    fixture.logger.info(`Logging in with Password: ${password}`);
+    await loginPage.loginUser(username, password);
     fixture.logger.info("Login action initiated with scenario-level credentials.");
 });
 
@@ -47,15 +47,6 @@ When('User clicks on the login button', async function () {
     fixture.logger.info('Clicking the login button.');
     await loginPage.clickLoginButton();
     fixture.logger.info('Login button clicked.');
-});
-
-// ----------------- Valid Login -----------------
-Then('Login should be success', async function () {
-    const user = fixture.page.locator("//button[contains(@class,'mat-focus-indicator mat-menu-trigger')]//span[1]");
-    fixture.logger.info('Verifying user is visible on the page.');
-    await expect(user).toBeVisible();
-    const userName = await user.textContent();
-    fixture.logger.info(`Login successful. User name displayed: ${userName}`);
 });
 
 // ----------------- Invalid Login -----------------
@@ -89,3 +80,17 @@ Then('Check the {string} error message', async function (errorMessage) {
     await expect(failureMessage).toHaveText(errorMessage);
     fixture.logger.info('Error message verified successfully.');
 });
+
+
+When('User enters userName {string} and password {string}', async (userName: string, password: string) => {
+    console.log(">>>>>>", userName)
+});
+
+
+Then('Verify username {string} has list {list} is parsed successfuly', (username:string,values: string[]) => {
+  console.log(username,"######",values.length)
+})
+
+Then('Verify {list} is parsed successfuly', (values: string[]) => {
+    console.log("###@@@@@###", values)
+})

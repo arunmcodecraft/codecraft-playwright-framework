@@ -5,13 +5,15 @@ module.exports = {
             snippetInterface: "async-await"
         },
         paths: [
-            "src/test/features/login.feature"
+            "src/test/features/login.feature",
+            "src/test/features/dashboard.feature"
         ],
         publishQuiet: true,
         dryRun: false,
         require: [
-            "src/test/steps/*.ts",
-            "src/hooks/hooks.ts"
+            "src/support/customTypes.ts",
+            "src/support/hooks.ts",
+            "src/test/steps/*.ts"
         ],
         requireModule: [
             "ts-node/register"
@@ -31,8 +33,9 @@ module.exports = {
         publishQuiet: true,
         dryRun: false,
         require: [
-            "src/test/steps/*.ts",
-            "src/hooks/hooks.ts"
+            "src/support/customTypes.ts",
+            "src/support/hooks.ts",
+            "src/test/steps/*.ts"
         ],
         requireModule: [
             "ts-node/register"

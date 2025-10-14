@@ -1,4 +1,4 @@
-import { Page, Locator } from "@playwright/test";
+import { Page, Locator, expect } from "@playwright/test";
 
 export default class PlaywrightWrapper {
     constructor(private page: Page) { }
@@ -23,6 +23,25 @@ export default class PlaywrightWrapper {
         await Promise.all([
             this.page.waitForNavigation(),
             this.page.click(link)
+        ]);
+    }
+
+    // ✅ Wait for a specific URL (exact or partial)
+   async waitForURL(expectedURL: string | RegExp, timeout: number = 5000) {
+    if (typeof expectedURL === "string") {
+        // Convert string to RegExp to match anywhere in the URL
+        const escaped = expectedURL.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // escape special chars
+        await expect(this.page).toHaveURL(new RegExp(escaped), { timeout });
+    } else {
+        await expect(this.page).toHaveURL(expectedURL, { timeout });
+    }
+}
+
+    // ✅ Perform an action and wait for URL to change
+    async waitForURLAfterAction(action: () => Promise<void>, expectedURL: string | RegExp, timeout: number = 5000) {
+        await Promise.all([
+            action(),                    // Perform the passed action (e.g., click Logout)
+            this.page.waitForURL(expectedURL, { timeout })  // Wait for URL
         ]);
     }
 
@@ -55,4 +74,6 @@ export default class PlaywrightWrapper {
         const element = this.page.locator(locator);
         return (await element.count()) > 0;
     }
+
+
 }
