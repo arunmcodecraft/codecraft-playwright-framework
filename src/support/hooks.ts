@@ -20,7 +20,6 @@ import { getEnv } from "../helper/env/env";
 // ----------------- Global Variables -----------------
 let browser: Browser;
 let context: BrowserContext;
-let allData: Record<string, string>[] = [];
 
 // ================================================================
 // 🧩 BEFORE ALL — Launch Browser once before all features
@@ -29,10 +28,6 @@ BeforeAll(async function () {
     getEnv();
     browser = await invokeBrowser();
     console.log("✅ Browser launched for all tests.");
-
-    // Load CSV once for all scenarios
-    const csvFilePath = path.join(__dirname, "../helper/util/test-data/testData.csv");
-    allData = await CSVParser.parseData(csvFilePath, '|');
 });
 
 // ================================================================
@@ -43,41 +38,68 @@ Before(async function ({ pickle }) {
     const env = process.env.ENV || "STG";
     fixture.env = env;
 
-    // Extract Key from scenario tag @Key=XYZ
-    const keyTag = pickle.tags.find(tag => tag.name.startsWith("@Key:"));
-    const key = keyTag ? keyTag.name.replace("@Key:", "").trim() : null;
+    // ---------------- Extract Tags ----------------
+    const keyTag = pickle.tags.find(tag => tag.name.toLowerCase().startsWith("@key:"));
+    const key = keyTag ? keyTag.name.split(":")[1].trim() : null;
 
+    const dataFileTag = pickle.tags.find(tag => tag.name.toLowerCase().startsWith("@datafile:"));
+    const dataFilePath = dataFileTag
+        ? path.join(__dirname, `../${dataFileTag.name.split(":")[1].trim()}`)
+        : path.join(__dirname, "../helper/util/test-data/testData.csv"); // default fallback
+
+    // ---------------- Load Data ----------------
+    if (!fs.existsSync(dataFilePath)) {
+        throw new Error(`❌ Data file not found: ${dataFilePath}`);
+    }
+
+    let testDataRows: Record<string, string>[] = [];
+
+    if (dataFilePath.endsWith(".csv")) {
+        // CSV parsing
+        testDataRows = await CSVParser.parseData(dataFilePath, '|');
+    } else if (dataFilePath.endsWith(".json")) {
+        // JSON parsing
+        const jsonContent = JSON.parse(fs.readFileSync(dataFilePath, "utf-8"));
+        if (Array.isArray(jsonContent)) {
+            testDataRows = jsonContent;
+        } else {
+            throw new Error(`❌ JSON file must contain an array of objects: ${dataFilePath}`);
+        }
+    } else {
+        throw new Error(`❌ Unsupported data file type: ${dataFilePath}`);
+    }
+
+    // ---------------- Find row by Key + Env ----------------
     if (key) {
-        // 🔹 Find the row matching Key + Env
-        const testData = allData.find((row: any) => {
-            const csvKey = row.Key ?? row.TestCaseID ?? row.key ?? row.testcaseid;
-            const csvEnv = row.Env ?? row.env;
-            return csvKey === key && csvEnv?.toLowerCase() === env.toLowerCase();
+        const testData = testDataRows.find(row => {
+            const rowKey = row.Key ?? row.TestCaseID ?? row.key ?? row.testcaseid;
+            const rowEnv = row.Env ?? row.env;
+            return rowKey === key && rowEnv?.toLowerCase() === env.toLowerCase();
         });
 
-        if (!testData) throw new Error(`❌ No CSV data found for Key=${key} in Env=${env}`);
+        if (!testData) {
+            throw new Error(`❌ No data found for Key=${key} in Env=${env} in file=${dataFilePath}`);
+        }
+
         fixture.testData = testData;
 
-        // Iterate and replce param with actual value for each step
-        pickle.steps.forEach((step, index) => {
-            pickle.steps[index].text = step.text.replace(/<(\w+)>/g, (_, key) => testData[key] || `<${key}>`);
-            // console.log(`After >> Step ${index + 1}: ${step.argument}  ${step.type} ${step.text}`);
-        })
+        // Replace placeholders <username> etc. in steps
+        pickle.steps.forEach((step, i) => {
+            pickle.steps[i].text = step.text.replace(/<(\w+)>/g, (_, k) => testData[k] ?? `<${k}>`);
+        });
 
-        // Create stepArgsMap for dynamic step arguments
+        // Dynamic step args mapping
         // @ts-ignore
         this.stepArgsMap = new Proxy({}, {
             get: (_, prop: string) => testData[prop] ?? testData[prop.toLowerCase()] ?? `<${prop}>`
         });
 
-        fixture.logger?.info(`🔹 Loaded scenario data → Key: ${key}, Env: ${env}`);
+        fixture.logger?.info(`🔹 Loaded data from: ${dataFilePath} | Key=${key} | Env=${env}`);
     } else {
-        fixture.logger?.info("⚠️ No @Key tag found — skipping CSV data load");
+        fixture.logger?.info(`⚠️ No @Key tag found — skipping data load`);
     }
-    
-    
 
-    // Setup browser context & page
+    // ---------------- Browser Context Setup ----------------
     const isAuthScenario = pickle.tags.some(tag => tag.name === "@auth");
     context = await browser.newContext({
         viewport: null,
@@ -97,6 +119,10 @@ Before(async function ({ pickle }) {
     fixture.page = page;
     fixture.logger = createLogger(options(scenarioName));
     fixture.logger.info(`🚀 Starting Scenario: ${pickle.name}`);
+
+    // Debug
+    console.log("Resolved dataFilePath:", dataFilePath);
+    console.log("Scenario Key:", key);
 });
 
 // ================================================================

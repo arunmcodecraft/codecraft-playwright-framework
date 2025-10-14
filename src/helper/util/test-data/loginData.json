@@ -1,0 +1,23 @@
+[
+  {
+    "Key": "Login_03",
+    "Env": "STG",
+    "userName": "arunfeder@gmail.com",
+    "password": "Apple@1234567",
+    "Designation": "Tester"
+  },
+  {
+    "Key": "Login_03",
+    "Env": "DEV",
+    "userName": "arunfeder@gmail.com",
+    "password": "Apple@1234567",
+    "Designation": "Dev"
+  },
+  {
+    "Key": "Login_03",
+    "Env": "PRD",
+    "userName": "arunfeder@gmail.com",
+    "password": "Apple@1234567",
+    "Designation": "QA"
+  }
+]
