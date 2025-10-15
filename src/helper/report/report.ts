@@ -1,4 +1,9 @@
+const os = require("os");
 const report = require("multiple-cucumber-html-reporter");
+
+const deviceName = os.hostname(); // Gets the current machine name
+const platformName = os.type();   // OS name, e.g., 'Windows_NT'
+const platformVersion = os.release(); // OS version
 
 report.generate({
     jsonDir: "test-results",
@@ -11,10 +16,10 @@ report.generate({
             name: "chrome",
             version: "112",
         },
-        device: "Arun's Laptop",
+        device: deviceName,
         platform: {
-            name: "Windows",
-            version: "10",
+            name: platformName,
+            version: platformVersion,
         },
     },
     customData: {
