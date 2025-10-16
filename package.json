@@ -5,21 +5,21 @@
   "main": "index.js",
   "scripts": {
     "pretest": "npx ts-node src/helper/report/init.ts",
-    "test": "cucumber-js --config=config/cucumber.js || true",
+    "test": "cucumber-js --config=config/cucumber.js",
     "posttest": "npx ts-node src/helper/report/report.ts",
     "test:failed": "cucumber-js -p rerun @rerun.txt",
-    "test:all": "cross-env ENV=STG cucumber-js --config=config/cucumber.js || true",
-    "test:smoke": "cross-env ENV=STG cucumber-js --tags \"@smoke\" --config=config/cucumber.js || true",
-    "test:regression": "cross-env ENV=STG cucumber-js --tags \"@regression\" --config=config/cucumber.js || true",
-    "test:staging": "cross-env ENV=STG cucumber-js --config=config/cucumber.js || true",
-    "test:sanity": "cross-env ENV=PRD cucumber-js --tags \"@sanity\" --config=config/cucumber.js || true"
+    "test:all": "cross-env ENV=STG npx ts-node src/helper/report/init.ts && cross-env ENV=STG cucumber-js --config=config/cucumber.js && cross-env ENV=STG npx ts-node src/helper/report/report.ts",
+    "test:smoke": "cross-env ENV=STG npx ts-node src/helper/report/init.ts && cross-env ENV=STG cucumber-js --config=config/cucumber.js --tags @smoke && cross-env ENV=STG npx ts-node src/helper/report/report.ts",
+    "test:regression": "cross-env ENV=STG npx ts-node src/helper/report/init.ts && cross-env ENV=STG cucumber-js --config=config/cucumber.js --tags @regression && cross-env ENV=STG npx ts-node src/helper/report/report.ts",
+    "test:staging": "cross-env ENV=STG npx ts-node src/helper/report/init.ts && cross-env ENV=STG cucumber-js --config=config/cucumber.js && cross-env ENV=STG npx ts-node src/helper/report/report.ts",
+    "test:sanity": "cross-env ENV=PRD npx ts-node src/helper/report/init.ts && cross-env ENV=PRD cucumber-js --config=config/cucumber.js --tags @sanity && cross-env ENV=PRD npx ts-node src/helper/report/report.ts"
   },
   "keywords": [
     "cucumber",
     "cucumber - TS",
     "playwright-cucumber"
   ],
-  "author": " Continental QA.....",
+  "author": "Continental QA",
   "license": "ISC",
   "devDependencies": {
     "@cucumber/cucumber": "^9.0.1",
