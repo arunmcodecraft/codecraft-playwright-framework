@@ -11,12 +11,9 @@ module.exports = {
         publishQuiet: true,
         dryRun: false,
         require: [
-            "src/support/customTypes.ts",
-            "src/support/hooks.ts",
-            "src/test/steps/*.ts"
-        ],
-        requireModule: [
-            "ts-node/register"
+            "src/support/customTypes.js",
+            "src/support/hooks.js",
+            "src/test/steps/*.js"
         ],
         format: [
             "progress-bar",
@@ -24,7 +21,7 @@ module.exports = {
             "json:test-results/cucumber-report.json",
             "rerun:@rerun.txt"
         ],
-        parallel: 2
+        parallel: 1
     },
     rerun: {
         formatOptions: {
@@ -33,12 +30,9 @@ module.exports = {
         publishQuiet: true,
         dryRun: false,
         require: [
-            "src/support/customTypes.ts",
-            "src/support/hooks.ts",
-            "src/test/steps/*.ts"
-        ],
-        requireModule: [
-            "ts-node/register"
+            "src/support/customTypes.js",
+            "src/support/hooks.js",
+            "src/test/steps/*.js"
         ],
         format: [
             "progress-bar",
@@ -46,6 +40,6 @@ module.exports = {
             "json:test-results/cucumber-report.json",
             "rerun:@rerun.txt"
         ],
-        parallel: 2
+        parallel: 1
     }
-}
+};

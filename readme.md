@@ -1,7 +1,7 @@
-# Playwright (TS binding) + Cucumber (BDD) - Practice Test Automation Framework
+# Playwright (JavaScript) + Cucumber (BDD) - Practice Test Automation Framework
 
 Cucumber is a popular behavior-driven development (BDD) tool that allows developers and stakeholders to collaborate on defining and testing application requirements in a human-readable format. 
-TypeScript is a powerful superset of JavaScript that adds optional static typing, making it easier to catch errors before runtime. By combining these two tools, we can create more reliable and maintainable tests.
+This framework now uses JavaScript with Cucumber and Playwright for readable and maintainable automated tests.
 
 ## 🚀 Quick Start for New Users
 
@@ -29,18 +29,18 @@ npx playwright install
 ```
 src/
 ├── pages/              # Page Object Models
-│   ├── loginPage.ts    # Login page interactions
-│   └── contactPage.ts  # Contact form interactions
+│   ├── loginPage.js    # Login page interactions
+│   └── contactPage.js  # Contact form interactions
 ├── test/
 │   ├── features/       # Gherkin feature files
 │   │   ├── login.feature
 │   │   └── contact.feature
 │   └── steps/          # Step definitions
-│       ├── loginSteps.ts
-│       └── contactSteps.ts
+│       ├── loginSteps.js
+│       └── contactSteps.js
 ├── support/            # Framework support files
-│   ├── hooks.ts        # Test setup/teardown
-│   └── pageFixture.ts  # Shared page objects
+│   ├── hooks.js        # Test setup/teardown
+│   └── pageFixture.js  # Shared page objects
 └── helper/
     ├── env/            # Environment configurations
     │   ├── .env.STG    # Staging environment
@@ -105,7 +105,7 @@ Feature: Contact Form Management
 ```
 
 **Step Definitions** (`src/test/steps/`):
-- TypeScript code that implements feature steps
+- JavaScript code that implements feature steps
 - Uses Page Object Models for UI interactions
 - Handles assertions and test logic
 
@@ -160,7 +160,7 @@ HEAD=true
 - **Data-Driven Testing**: Use CSV files for test data, avoid hardcoding
 - **Descriptive Steps**: Write clear, readable feature files
 - **Error Handling**: Add proper assertions and error messages
-- **Clean Code**: Follow TypeScript best practices and naming conventions
+- **Clean Code**: Follow JavaScript best practices and naming conventions
 
 ## Features
 
@@ -174,13 +174,13 @@ HEAD=true
 8. Environment-specific configuration
 
 ## Sample report
-![image](https://github.com/ortoniKC/Playwright_Cucumber_TS/assets/58769833/da2d9f5a-85e7-4695-8ce2-3378b692afc4)
+![Automation Report](https://via.placeholder.com/800x400/1f3605/ffffff?text=Automation+Report+Generated+Successfully)
 
 
 ## Project structure
 
 - .github -> yml file to execute the tests in GitHub Actions
-- src -> Contains all the features & Typescript code
+- src -> Contains all the features & JavaScript code
 - test-results -> Contains all the reports related file
 
 ## Architecture Diagram
@@ -313,17 +313,17 @@ npm run test:sanity
 ### Folder structure
 0. `src/pages` -> Page object models for UI screens
 1. `src/test/features` -> Gherkin feature files
-2. `src/test/steps` -> TypeScript step definitions
-3. `src/support/hooks.ts` -> Browser setup and teardown logic
-4. `src/support/pageFixture.ts` -> Shared page objects across steps
-5. `src/support/customTypes.ts` -> Custom Cucumber parameter types
-6. `src/support/htmllSubStepLogger.ts` -> HTML sub-step logging utilities
-7. `src/support/textSubStepLogger.ts` -> Text sub-step logging utilities
+2. `src/test/steps` -> JavaScript step definitions
+3. `src/support/hooks.js` -> Browser setup and teardown logic
+4. `src/support/pageFixture.js` -> Shared page objects across steps
+5. `src/support/customTypes.js` -> Custom Cucumber parameter types
+6. `src/support/htmllSubStepLogger.js` -> HTML sub-step logging utilities
+7. `src/support/textSubStepLogger.js` -> Text sub-step logging utilities
 8. `src/helper/env` -> Environment configurations (.env files)
 9. `src/helper/report` -> Report generation utilities
 10. `src/helper/auth` -> Authentication storage states
 11. `src/helper/util` -> Utilities for test data and logging
-12. `src/helper/types` -> TypeScript type definitions
+12. `src/helper` -> Runtime helper definitions
 13. `src/helper/wrapper` -> Playwright wrapper utilities
 14. `src/helper/browsers` -> Browser management
 15. `src/helper/parsers` -> Data parsers (e.g., CSV)
@@ -331,3 +331,4 @@ npm run test:sanity
 17. `package.json` -> Dependencies and scripts
 18. `test-results` -> Generated test reports and artifacts
 19. `.github` -> GitHub Actions workflows
+
