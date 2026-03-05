@@ -1,4 +1,4 @@
-# Playwright (JavaScript) + Cucumber (BDD) - Practice Test Automation Framework
+# Playwright (JavaScript) + Cucumber (BDD) - Test Automation Framework
 
 Cucumber is a popular behavior-driven development (BDD) tool that allows developers and stakeholders to collaborate on defining and testing application requirements in a human-readable format. 
 This framework now uses JavaScript with Cucumber and Playwright for readable and maintainable automated tests.
