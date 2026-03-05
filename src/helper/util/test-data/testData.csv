@@ -1,0 +1,5 @@
+Key|Env|username|password|firstName|lastName|email|message
+Contact_01|STG|student|Password123|John|Doe|john.doe@test.com|This is a test message
+Contact_01|DEV|student|Password123|Jane|Smith|jane.smith@test.com|This is a test message from DEV
+Contact_01|PRD|student|Password123|Bob|Wilson|bob.wilson@test.com|This is a test message from PRD
+
