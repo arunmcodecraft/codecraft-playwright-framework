@@ -37,19 +37,13 @@ jobs:
       - name: Run API suite
         run: npm run test:key -- --testKey=api
 
-      - name: Generate Allure report
-        if: always()
-        run: npm run allure:generate
-
       - name: Upload API artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: api-test-artifacts
           path: |
-            test-results
-            allure-results
-            allure-report
+            test-results/reports/index.html
           if-no-files-found: warn
 
   ui-tests:
@@ -79,19 +73,13 @@ jobs:
       - name: Run UI suite
         run: npm run test:key -- --testKey=ui
 
-      - name: Generate Allure report
-        if: always()
-        run: npm run allure:generate
-
       - name: Upload UI artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: ui-test-artifacts
           path: |
-            test-results
-            allure-results
-            allure-report
+            test-results/reports/index.html
           if-no-files-found: warn
 
   email-report:
@@ -112,18 +100,13 @@ jobs:
           name: ui-test-artifacts
           path: artifacts/ui
 
-      - name: Install wkhtmltopdf
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y wkhtmltopdf
-
-      - name: Generate report PDFs
+      - name: Prepare HTML report attachments
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p artifacts/pdf
-          wkhtmltopdf --enable-local-file-access --javascript-delay 3000 artifacts/api/test-results/reports/index.html artifacts/pdf/api-report.pdf
-          wkhtmltopdf --enable-local-file-access --javascript-delay 3000 artifacts/ui/test-results/reports/index.html artifacts/pdf/ui-report.pdf
+          mkdir -p artifacts/html
+          cp artifacts/api/index.html artifacts/html/api-report.html
+          cp artifacts/ui/index.html artifacts/html/ui-report.html
 
       - name: Send execution summary email
         uses: dawidd6/action-send-mail@v3
@@ -138,8 +121,8 @@ jobs:
           to: ${{ secrets.QA_REPORT_TO_EMAIL }}
           from: ${{ secrets.QA_REPORT_FROM_EMAIL }}
           attachments: |
-            artifacts/pdf/api-report.pdf
-            artifacts/pdf/ui-report.pdf
+            artifacts/html/api-report.html
+            artifacts/html/ui-report.html
           html_body: |
             <h2>QA Automation Execution Summary</h2>
             <p>

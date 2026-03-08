@@ -196,6 +196,9 @@ Before(async function ({ pickle }) {
 });
 
 BeforeStep(async function ({ pickleStep }) {
+    if (fixture.subStepLogger) {
+        await fixture.subStepLogger.info(`Step started -> ${pickleStep.text}`);
+    }
     if (fixture.logger) {
         fixture.logger.info(`Step started -> ${pickleStep.text}`);
     }
@@ -206,10 +209,16 @@ AfterStep(async function ({ pickleStep, result }) {
     const status = result && result.status ? result.status : "UNKNOWN";
 
     if (status === Status.PASSED) {
+        if (fixture.subStepLogger) {
+            await fixture.subStepLogger.success(`Step passed -> ${stepText}`);
+        }
         if (fixture.logger) {
             fixture.logger.info(`Step passed -> ${stepText}`);
         }
     } else if (status === Status.FAILED) {
+        if (fixture.subStepLogger) {
+            await fixture.subStepLogger.failure(`Step failed -> ${stepText}`);
+        }
         if (fixture.logger) {
             fixture.logger.error(`Step failed -> ${stepText}`);
         }
