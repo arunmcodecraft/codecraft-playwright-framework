@@ -3,7 +3,6 @@ const path = require("path");
 const os = require("os");
 const { generate } = require("multiple-cucumber-html-reporter");
 const { execSync } = require("child_process");
-const fs = require("fs");
 
 dotenv.config({
     path: path.resolve(__dirname, "../env/.env.PRD")
@@ -73,66 +72,11 @@ try {
 const jsonDir = path.resolve("test-results");
 const reportDir = path.join(jsonDir, "reports");
 
-if (!fs.existsSync(reportDir)) {
-    fs.mkdirSync(reportDir, { recursive: true });
-}
-
-const cssContent = `
-body {
-    background-color: #1f3605ff !important;
-}
-
-.main_container {
-    background: #ffffff !important;
-    padding: 15px;
-    border-radius: 10px;
-}
-
-@media (prefers-color-scheme: dark) {
-    body {
-        background-color: #1a1a1a !important;
-    }
-    .main_container, .x_panel {
-        background: #2a2a2a !important;
-        color: #ffffff !important;
-    }
-    .x_title {
-        color: #ffffff !important;
-        border-bottom: 2px solid #1f3605ff !important;
-    }
-    table, th, td {
-        color: #ffffff !important;
-        border-color: #444 !important;
-    }
-}
-
-body.dark-mode {
-    background-color: #1a1a1a !important;
-}
-body.dark-mode .main_container,
-body.dark-mode .x_panel {
-    background: #2a2a2a !important;
-    color: #ffffff !important;
-}
-
-.x_title h2 {
-    font-weight: bold;
-    color: #333;
-}
-
-body.dark-mode .x_title h2 {
-    color: #ffa500;
-}
-`;
-
-const cssPath = path.join(reportDir, "custom-style.css");
-fs.writeFileSync(cssPath, cssContent, { encoding: "utf8" });
-
 const reportOptions = {
     jsonDir,
     reportPath: reportDir,
     reportName: "Automation Report",
-    pageTitle: runType === "api" ? "API Automation Test Results" : "Automation Test Results",
+    pageTitle: "Automation Test Results",
     displayDuration: true,
     durationInMS: false,
     removeExistingJsonReport: false,
@@ -146,31 +90,23 @@ const reportOptions = {
             { label: "Base URL", value: baseUrl },
             { label: "Headless", value: headlessMode }
         ]
-    },
-    customStyle: cssPath
+    }
 };
 
-if (runType !== "api") {
-    reportOptions.metadata = {
-        browser: {
-            name: browserName,
-            version: browserVersion
-        },
-        device: deviceName,
-        platform: {
-            name: platformName,
-            version: platformVersion
-        }
-    };
-    reportOptions.customData.data.push(
-        { label: "Executed At", value: new Date().toLocaleString() }
-    );
-} else {
-    reportOptions.customData.data.push(
-        { label: "Executed At", value: new Date().toLocaleString() },
-        { label: "Metadata Profile", value: "API-focused (browser/device hidden)" }
-    );
-}
+reportOptions.metadata = {
+    browser: {
+        name: browserName,
+        version: browserVersion
+    },
+    device: deviceName,
+    platform: {
+        name: platformName,
+        version: platformVersion
+    }
+};
+reportOptions.customData.data.push(
+    { label: "Executed At", value: new Date().toLocaleString() }
+);
 
 generate(reportOptions);
 
