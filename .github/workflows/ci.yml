@@ -10,6 +10,12 @@ jobs:
     name: API Tests
     runs-on: windows-latest
     timeout-minutes: 20
+    outputs:
+      executed: ${{ steps.api-summary.outputs.executed }}
+      passed: ${{ steps.api-summary.outputs.passed }}
+      failed: ${{ steps.api-summary.outputs.failed }}
+      skipped: ${{ steps.api-summary.outputs.skipped }}
+      duration_ms: ${{ steps.api-summary.outputs.duration_ms }}
     env:
       ENV: ${{ (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main') && 'PRD' || 'STG' }}
       HEAD: true
@@ -33,6 +39,61 @@ jobs:
       - name: Run API suite
         run: npm run test:all -- --tags "@api"
 
+      - name: API execution summary
+        id: api-summary
+        if: always()
+        shell: pwsh
+        run: |
+          $reportPath = "test-results/cucumber-report.json"
+
+          $executed = 0
+          $passed = 0
+          $failed = 0
+          $skipped = 0
+          $durationMs = 0
+
+          if (Test-Path $reportPath) {
+            $report = Get-Content -Path $reportPath -Raw | ConvertFrom-Json
+            foreach ($feature in $report) {
+              foreach ($scenario in $feature.elements) {
+                if (-not $scenario) { continue }
+                $executed++
+
+                $scenarioStatuses = @()
+                foreach ($step in $scenario.steps) {
+                  if ($step.result -and $step.result.status) { $scenarioStatuses += $step.result.status }
+                  if ($step.result -and $step.result.duration) { $durationMs += [int64]($step.result.duration / 1000000) }
+                }
+
+                if ($scenarioStatuses -contains "failed") { $failed++ }
+                elseif ($scenarioStatuses -contains "passed") { $passed++ }
+                else { $skipped++ }
+              }
+            }
+          }
+
+          @"
+          executed=$executed
+          passed=$passed
+          failed=$failed
+          skipped=$skipped
+          duration_ms=$durationMs
+          "@ | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
+          Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value "## API Suite Report"
+          Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value ""
+          Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value "| Metric | Value |"
+          Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value "|---|---:|"
+          Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value "| Executed | $executed |"
+          Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value "| Passed | $passed |"
+          Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value "| Failed | $failed |"
+          Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value "| Skipped | $skipped |"
+          Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value "| Duration (ms) | $durationMs |"
+          Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value "| Job Result | ${{ job.status }} |"
+          Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value "| Branch | ${{ github.ref_name }} |"
+          Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value "| Environment | ${{ env.ENV }} |"
+          Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value "| Run URL | ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} |"
+
       - name: Upload API artifacts
         if: always()
         uses: actions/upload-artifact@v4
@@ -49,6 +110,12 @@ jobs:
     name: UI Tests
     runs-on: windows-latest
     timeout-minutes: 30
+    outputs:
+      executed: ${{ steps.ui-summary.outputs.executed }}
+      passed: ${{ steps.ui-summary.outputs.passed }}
+      failed: ${{ steps.ui-summary.outputs.failed }}
+      skipped: ${{ steps.ui-summary.outputs.skipped }}
+      duration_ms: ${{ steps.ui-summary.outputs.duration_ms }}
     env:
       ENV: ${{ (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main') && 'PRD' || 'STG' }}
       HEAD: true
@@ -71,6 +138,61 @@ jobs:
 
       - name: Run UI suite
         run: npm run test:all -- --tags "not @api"
+
+      - name: UI execution summary
+        id: ui-summary
+        if: always()
+        shell: pwsh
+        run: |
+          $reportPath = "test-results/cucumber-report.json"
+
+          $executed = 0
+          $passed = 0
+          $failed = 0
+          $skipped = 0
+          $durationMs = 0
+
+          if (Test-Path $reportPath) {
+            $report = Get-Content -Path $reportPath -Raw | ConvertFrom-Json
+            foreach ($feature in $report) {
+              foreach ($scenario in $feature.elements) {
+                if (-not $scenario) { continue }
+                $executed++
+
+                $scenarioStatuses = @()
+                foreach ($step in $scenario.steps) {
+                  if ($step.result -and $step.result.status) { $scenarioStatuses += $step.result.status }
+                  if ($step.result -and $step.result.duration) { $durationMs += [int64]($step.result.duration / 1000000) }
+                }
+
+                if ($scenarioStatuses -contains "failed") { $failed++ }
+                elseif ($scenarioStatuses -contains "passed") { $passed++ }
+                else { $skipped++ }
+              }
+            }
+          }
+
+          @"
+          executed=$executed
+          passed=$passed
+          failed=$failed
+          skipped=$skipped
+          duration_ms=$durationMs
+          "@ | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
+          Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value "## UI Suite Report"
+          Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value ""
+          Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value "| Metric | Value |"
+          Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value "|---|---:|"
+          Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value "| Executed | $executed |"
+          Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value "| Passed | $passed |"
+          Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value "| Failed | $failed |"
+          Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value "| Skipped | $skipped |"
+          Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value "| Duration (ms) | $durationMs |"
+          Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value "| Job Result | ${{ job.status }} |"
+          Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value "| Branch | ${{ github.ref_name }} |"
+          Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value "| Environment | ${{ env.ENV }} |"
+          Add-Content -Path $env:GITHUB_STEP_SUMMARY -Value "| Run URL | ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} |"
 
       - name: Upload UI artifacts
         if: always()
@@ -122,7 +244,17 @@ jobs:
             Branch: ${{ github.ref_name }}
             Environment: ${{ (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main') && 'PRD' || 'STG' }}
             API Job Result: ${{ needs.api-tests.result == 'success' && 'PASS' || needs.api-tests.result }}
+            API Executed: ${{ needs.api-tests.outputs.executed }}
+            API Passed: ${{ needs.api-tests.outputs.passed }}
+            API Failed: ${{ needs.api-tests.outputs.failed }}
+            API Skipped: ${{ needs.api-tests.outputs.skipped }}
+            API Duration (ms): ${{ needs.api-tests.outputs.duration_ms }}
             UI Job Result: ${{ needs.ui-tests.result == 'success' && 'PASS' || needs.ui-tests.result }}
+            UI Executed: ${{ needs.ui-tests.outputs.executed }}
+            UI Passed: ${{ needs.ui-tests.outputs.passed }}
+            UI Failed: ${{ needs.ui-tests.outputs.failed }}
+            UI Skipped: ${{ needs.ui-tests.outputs.skipped }}
+            UI Duration (ms): ${{ needs.ui-tests.outputs.duration_ms }}
             Run URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
             Artifacts: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}#artifacts
           attachments: artifacts/api/test-results/reports/index.html,artifacts/ui/test-results/reports/index.html
