@@ -3,9 +3,7 @@ name: UI and API Automation CI
 on:
   push:
     branches:
-      - main
-      - master
-      - develop
+      - "**"
   pull_request:
     branches:
       - "**"
@@ -17,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      ENV: STG
+      ENV: ${{ (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main') && 'PRD' || 'STG' }}
       HEAD: true
       BROWSER: chrome
     steps:
@@ -28,7 +26,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
+          cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
@@ -59,7 +57,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      ENV: STG
+      ENV: ${{ (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main') && 'PRD' || 'STG' }}
       HEAD: true
       BROWSER: chrome
     steps:
@@ -70,7 +68,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
+          cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
@@ -95,3 +93,33 @@ jobs:
             allure-results
             allure-report
           if-no-files-found: warn
+
+  email-report:
+    name: Email Report
+    needs: [api-tests, ui-tests]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Send execution summary email
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ secrets.SMTP_SERVER }}
+          server_port: ${{ secrets.SMTP_PORT }}
+          username: ${{ secrets.SMTP_USERNAME }}
+          password: ${{ secrets.SMTP_PASSWORD }}
+          secure: true
+          subject: >-
+            QA Automation CI (${{ github.ref_name }}) - API: ${{ needs.api-tests.result }}, UI: ${{ needs.ui-tests.result }}
+          to: ${{ secrets.QA_REPORT_TO_EMAIL }}
+          from: ${{ secrets.QA_REPORT_FROM_EMAIL }}
+          body: |
+            Workflow: ${{ github.workflow }}
+            Branch: ${{ github.ref_name }}
+            Environment: ${{ (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main') && 'PRD' || 'STG' }}
+            API Job Result: ${{ needs.api-tests.result }}
+            UI Job Result: ${{ needs.ui-tests.result }}
+            Run URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+            Artifacts:
+            - api-test-artifacts
+            - ui-test-artifacts
