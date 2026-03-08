@@ -15,7 +15,7 @@ class LoginPage {
             loginPageTitle: "Test Login | Practice Test Automation"
         };
     }
-
+// navigate to Login Page
     async navigateToLoginPage() {
         await this.base.goto("practice-test-login/");
         await expect(this.page).toHaveTitle(this.Elements.loginPageTitle);
