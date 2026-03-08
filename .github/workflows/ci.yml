@@ -8,7 +8,7 @@ on:
 jobs:
   api-tests:
     name: API Tests
-    runs-on: ubuntu-22.04
+    runs-on: windows-latest
     timeout-minutes: 20
     env:
       ENV: ${{ (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main') && 'PRD' || 'STG' }}
@@ -28,7 +28,7 @@ jobs:
         run: npm ci
 
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install chromium
 
       - name: Run API suite
         run: npm run test:all -- --tags "@api"
@@ -47,7 +47,7 @@ jobs:
 
   ui-tests:
     name: UI Tests
-    runs-on: ubuntu-22.04
+    runs-on: windows-latest
     timeout-minutes: 30
     env:
       ENV: ${{ (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main') && 'PRD' || 'STG' }}
@@ -67,7 +67,7 @@ jobs:
         run: npm ci
 
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install chromium
 
       - name: Run UI suite
         run: npm run test:all -- --tags "not @api"
@@ -87,7 +87,7 @@ jobs:
   email-report:
     name: Email Report
     needs: [api-tests, ui-tests]
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     if: always()
     steps:
       - name: Download API artifacts
