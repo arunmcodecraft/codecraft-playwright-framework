@@ -2,11 +2,7 @@ name: UI and API Automation CI
 
 on:
   push:
-    branches:
-      - "**"
   pull_request:
-    branches:
-      - "**"
   workflow_dispatch:
 
 jobs:
@@ -35,7 +31,7 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Run API suite
-        run: npm run test:key -- --testKey=api
+        run: npm run test:all -- --tags "@api"
 
       - name: Upload API artifacts
         if: always()
@@ -43,7 +39,10 @@ jobs:
         with:
           name: api-test-artifacts
           path: |
-            test-results/reports/index.html
+            test-results/cucumber-report.html
+            test-results/cucumber-report.json
+            test-results/reports/**
+            allure-results/**
           if-no-files-found: warn
 
   ui-tests:
@@ -71,7 +70,7 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Run UI suite
-        run: npm run test:key -- --testKey=ui
+        run: npm run test:all -- --tags "not @api"
 
       - name: Upload UI artifacts
         if: always()
@@ -79,7 +78,10 @@ jobs:
         with:
           name: ui-test-artifacts
           path: |
-            test-results/reports/index.html
+            test-results/cucumber-report.html
+            test-results/cucumber-report.json
+            test-results/reports/**
+            allure-results/**
           if-no-files-found: warn
 
   email-report:
@@ -105,8 +107,12 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p artifacts/html
-          cp artifacts/api/index.html artifacts/html/api-report.html
-          cp artifacts/ui/index.html artifacts/html/ui-report.html
+          if [ -d artifacts/api/test-results/reports ]; then
+            (cd artifacts/api/test-results && zip -r ../../../html/api-report.zip reports)
+          fi
+          if [ -d artifacts/ui/test-results/reports ]; then
+            (cd artifacts/ui/test-results && zip -r ../../../html/ui-report.zip reports)
+          fi
 
       - name: Send execution summary email
         uses: dawidd6/action-send-mail@v3
@@ -121,8 +127,8 @@ jobs:
           to: ${{ secrets.QA_REPORT_TO_EMAIL }}
           from: ${{ secrets.QA_REPORT_FROM_EMAIL }}
           attachments: |
-            artifacts/html/api-report.html
-            artifacts/html/ui-report.html
+            artifacts/html/api-report.zip
+            artifacts/html/ui-report.zip
           html_body: |
             <h2>QA Automation Execution Summary</h2>
             <p>
