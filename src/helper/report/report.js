@@ -13,12 +13,13 @@ const deviceName = os.hostname();
 const platformName = os.type();
 const platformVersion = os.release();
 
-const projectName = process.env.PROJECT || "ChemReMSy";
+const projectName = process.env.PROJECT || "PracticeTestAutomation";
 const releaseVersion = process.env.RELEASE || "1.0.0";
 const cycleName = process.env.CYCLE || "Smoke-1";
-const baseUrl = process.env.BASEURL || "https://stage.chemremsy.te3985.ec1.aws.contitech.cloud";
+const baseUrl = process.env.BASEURL || "https://practicetestautomation.com/";
 const headlessMode = process.env.HEAD || "true";
 const browserName = process.env.BROWSER || "chrome";
+const runType = (process.env.TEST_RUN_TYPE || "mixed").toLowerCase();
 
 let browserVersion = "Unknown";
 
@@ -127,15 +128,30 @@ body.dark-mode .x_title h2 {
 const cssPath = path.join(reportDir, "custom-style.css");
 fs.writeFileSync(cssPath, cssContent, { encoding: "utf8" });
 
-generate({
+const reportOptions = {
     jsonDir,
     reportPath: reportDir,
     reportName: "Automation Report",
-    pageTitle: "ChemReMSy Test Results",
+    pageTitle: runType === "api" ? "API Automation Test Results" : "Automation Test Results",
     displayDuration: true,
     durationInMS: false,
     removeExistingJsonReport: false,
-    metadata: {
+    customData: {
+        title: "Execution Details",
+        data: [
+            { label: "Project", value: projectName },
+            { label: "Release", value: releaseVersion },
+            { label: "Cycle", value: cycleName },
+            { label: "Run Type", value: runType.toUpperCase() },
+            { label: "Base URL", value: baseUrl },
+            { label: "Headless", value: headlessMode }
+        ]
+    },
+    customStyle: cssPath
+};
+
+if (runType !== "api") {
+    reportOptions.metadata = {
         browser: {
             name: browserName,
             version: browserVersion
@@ -145,19 +161,17 @@ generate({
             name: platformName,
             version: platformVersion
         }
-    },
-    customData: {
-        title: "Execution Details",
-        data: [
-            { label: "Project", value: projectName },
-            { label: "Release", value: releaseVersion },
-            { label: "Cycle", value: cycleName },
-            { label: "Base URL", value: baseUrl },
-            { label: "Headless", value: headlessMode },
-            { label: "Executed At", value: new Date().toLocaleString() }
-        ]
-    },
-    customStyle: cssPath
-});
+    };
+    reportOptions.customData.data.push(
+        { label: "Executed At", value: new Date().toLocaleString() }
+    );
+} else {
+    reportOptions.customData.data.push(
+        { label: "Executed At", value: new Date().toLocaleString() },
+        { label: "Metadata Profile", value: "API-focused (browser/device hidden)" }
+    );
+}
+
+generate(reportOptions);
 
 console.log("Report Generated Successfully!");

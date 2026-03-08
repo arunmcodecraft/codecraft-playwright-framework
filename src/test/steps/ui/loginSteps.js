@@ -1,7 +1,7 @@
 const { Given, When, Then, setDefaultTimeout } = require("@cucumber/cucumber");
 const { expect } = require("@playwright/test");
-const { fixture } = require("../../support/pageFixture");
-const configuration = require("../../helper/commonConfig/configuration.json");
+const { fixture } = require("../../../support/pageFixture");
+const configuration = require("../../../helper/commonConfig/configuration.json");
 
 setDefaultTimeout(configuration.defaultTimeOut);
 
@@ -81,14 +81,3 @@ Then("Login should be successful", async function () {
     fixture.logger.info("Login verification completed successfully.");
 });
 
-When("User enters userName {string} and password {string}", async (userName) => {
-    console.log(">>>>>>", userName);
-});
-
-Then("Verify username {string} has list {list} is parsed successfuly", (username, values) => {
-    console.log(username, "######", values.length);
-});
-
-Then("Verify {list} is parsed successfuly", (values) => {
-    console.log("###@@@@@###", values);
-});

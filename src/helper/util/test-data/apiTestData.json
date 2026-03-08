@@ -1,0 +1,137 @@
+[
+  {
+    "Key": "API_Inventory_01",
+    "CaseId": "INV_POS_01",
+    "Env": "STG",
+    "request": {
+      "method": "GET",
+      "path": "/store/inventory",
+      "headers": {
+        "accept": "application/json"
+      }
+    },
+    "expected": {
+      "status": 200,
+      "contentTypeContains": "application/json",
+      "schema": "inventorySchema",
+      "containsKeys": ["available"]
+    }
+  },
+  {
+    "Key": "API_Inventory_01",
+    "CaseId": "INV_NEG_01",
+    "Env": "STG",
+    "request": {
+      "method": "GET",
+      "path": "/store/inventory/0",
+      "headers": {
+        "accept": "application/xml"
+      }
+    },
+    "expected": {
+      "status": 404,
+      "contentTypeContains": "application/xml",
+      "schema": "NA",
+      "rawContains": ["<apiResponse>", "<type>unknown</type>"]
+    }
+  },
+  {
+    "Key": "API_Order_01",
+    "CaseId": "ORD_POS_01",
+    "Env": "STG",
+    "request": {
+      "method": "POST",
+      "path": "/store/order",
+      "headers": {
+        "accept": "application/json",
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "id": 0,
+        "petId": 0,
+        "quantity": 0,
+        "shipDate": "$nowIso",
+        "status": "placed",
+        "complete": true
+      }
+    },
+    "expected": {
+      "status": 200,
+      "contentTypeContains": "application/json",
+      "schema": "storeOrderSchema",
+      "bodyEquals": {
+        "petId": 0,
+        "quantity": 0,
+        "status": "placed",
+        "complete": true
+      }
+    }
+  },
+  {
+    "Key": "API_Order_01",
+    "CaseId": "ORD_NEG_01",
+    "Env": "STG",
+    "request": {
+      "method": "GET",
+      "path": "/store/order/0",
+      "headers": {
+        "accept": "application/json"
+      }
+    },
+    "expected": {
+      "status": 404,
+      "contentTypeContains": "application/json",
+      "schema": "storeErrorSchema",
+      "bodyEquals": {
+        "code": 1,
+        "type": "error",
+        "message": "Order not found"
+      }
+    }
+  },
+  {
+    "Key": "API_Order_Chain_01",
+    "CaseId": "CHAIN_POS_01",
+    "Env": "STG",
+    "request": {
+      "method": "POST",
+      "path": "/store/order",
+      "headers": {
+        "accept": "application/json",
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "id": 0,
+        "petId": 0,
+        "quantity": 1,
+        "shipDate": "$nowIso",
+        "status": "placed",
+        "complete": true
+      }
+    },
+    "expected": {
+      "status": 200,
+      "contentTypeContains": "application/json",
+      "schema": "storeOrderSchema",
+      "bodyEquals": {
+        "petId": 0,
+        "quantity": 1,
+        "status": "placed",
+        "complete": true
+      }
+    },
+    "followUpRequest": {
+      "method": "GET",
+      "path": "/store/order/${ctx.orderId}",
+      "headers": {
+        "accept": "application/json"
+      }
+    },
+    "followUpExpected": {
+      "status": 200,
+      "contentTypeContains": "application/json",
+      "schema": "storeOrderSchema",
+      "containsKeys": ["id"]
+    }
+  }
+]

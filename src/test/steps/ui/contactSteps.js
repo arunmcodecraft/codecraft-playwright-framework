@@ -1,7 +1,7 @@
 const { Given, When, Then, setDefaultTimeout } = require("@cucumber/cucumber");
 const { expect } = require("@playwright/test");
-const { fixture } = require("../../support/pageFixture");
-const configuration = require("../../helper/Commonconfig/configuration.json");
+const { fixture } = require("../../../support/pageFixture");
+const configuration = require("../../../helper/commonConfig/configuration.json");
 
 setDefaultTimeout(configuration.defaultTimeOut);
 

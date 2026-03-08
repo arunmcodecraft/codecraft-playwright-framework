@@ -4,7 +4,15 @@ const fixture = {
     testData: {},
     env: "",
     subStepLogger: undefined,
-    pages: {}
+    pages: {},
+    api: {
+        client: undefined,
+        lastRequest: undefined,
+        lastResponse: undefined,
+        testData: {},
+        activeExpected: {},
+        context: undefined
+    }
 };
 
 module.exports = { fixture };

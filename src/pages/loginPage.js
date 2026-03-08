@@ -11,7 +11,7 @@ class LoginPage {
             passwordInput: "#password",
             loginBtn: "#submit",
             logoutBtn: "//a[text()='Log out']",
-            successMessage: "//h1[text()='Logged In Successfully']",
+            successMessage: "//h1[contains(normalize-space(),'Logged In Successfully')]",
             loginPageTitle: "Test Login | Practice Test Automation"
         };
     }
@@ -46,7 +46,8 @@ class LoginPage {
     }
 
     async verifySuccessfulLogin() {
-        await this.base.waitForElement(this.Elements.successMessage);
+        await this.base.waitForURL(/logged-in-successfully/);
+        await this.base.waitForElement(this.Elements.logoutBtn);
         return this.page.locator(this.Elements.successMessage).isVisible();
     }
 

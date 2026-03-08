@@ -5,20 +5,20 @@ module.exports = {
             snippetInterface: "async-await"
         },
         paths: [
-            "src/test/features/login.feature",
-            "src/test/features/contact.feature"
+            "src/test/features/**/*.feature"
         ],
         publishQuiet: true,
         dryRun: false,
         require: [
             "src/support/customTypes.js",
             "src/support/hooks.js",
-            "src/test/steps/*.js"
+            "src/test/steps/**/*.js"
         ],
         format: [
             "progress-bar",
             "html:test-results/cucumber-report.html",
             "json:test-results/cucumber-report.json",
+            "./src/support/allureReporter.js",
             "rerun:@rerun.txt"
         ],
         parallel: 1
@@ -32,12 +32,13 @@ module.exports = {
         require: [
             "src/support/customTypes.js",
             "src/support/hooks.js",
-            "src/test/steps/*.js"
+            "src/test/steps/**/*.js"
         ],
         format: [
             "progress-bar",
             "html:test-results/cucumber-report.html",
             "json:test-results/cucumber-report.json",
+            "./src/support/allureReporter.js",
             "rerun:@rerun.txt"
         ],
         parallel: 1
