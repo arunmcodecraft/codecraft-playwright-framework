@@ -125,3 +125,4 @@ jobs:
             UI Job Result: ${{ needs.ui-tests.result == 'success' && 'PASS' || needs.ui-tests.result }}
             Run URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
             Artifacts: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}#artifacts
+          attachments: artifacts/api/test-results/reports/index.html,artifacts/ui/test-results/reports/index.html,artifacts/api/test-results/cucumber-report.html,artifacts/ui/test-results/cucumber-report.html
