@@ -49,6 +49,9 @@ function resolveTokens(input) {
     if (typeof input === "string" && input === "$nowIso") {
         return new Date().toISOString();
     }
+    if (typeof input === "string" && input === "$randomOrderId") {
+        return Date.now();
+    }
     return input;
 }
 

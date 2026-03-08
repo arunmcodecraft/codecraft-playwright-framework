@@ -101,7 +101,7 @@
         "Content-Type": "application/json"
       },
       "body": {
-        "id": 0,
+        "id": "$randomOrderId",
         "petId": 0,
         "quantity": 1,
         "shipDate": "$nowIso",
