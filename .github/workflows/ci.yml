@@ -108,10 +108,10 @@ jobs:
           set -euo pipefail
           mkdir -p artifacts/html
           if [ -d artifacts/api/test-results/reports ]; then
-            (cd artifacts/api/test-results && zip -r ../../../html/api-report.zip reports)
+            (cd artifacts/api/test-results && zip -r ../../html/api-report.zip reports)
           fi
           if [ -d artifacts/ui/test-results/reports ]; then
-            (cd artifacts/ui/test-results && zip -r ../../../html/ui-report.zip reports)
+            (cd artifacts/ui/test-results && zip -r ../../html/ui-report.zip reports)
           fi
 
       - name: Send execution summary email
