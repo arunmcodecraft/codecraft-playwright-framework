@@ -16,7 +16,6 @@ module.exports = {
         ],
         format: [
             "progress-bar",
-            "html:test-results/cucumber-report.html",
             "json:test-results/cucumber-report.json",
             "./src/support/allureReporter.js",
             "rerun:@rerun.txt"
@@ -36,7 +35,6 @@ module.exports = {
         ],
         format: [
             "progress-bar",
-            "html:test-results/cucumber-report.html",
             "json:test-results/cucumber-report.json",
             "./src/support/allureReporter.js",
             "rerun:@rerun.txt"

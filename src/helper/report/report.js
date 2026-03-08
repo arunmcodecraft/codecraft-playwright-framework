@@ -1,6 +1,7 @@
 const dotenv = require("dotenv");
 const path = require("path");
 const os = require("os");
+const fs = require("fs-extra");
 const { generate } = require("multiple-cucumber-html-reporter");
 const { execSync } = require("child_process");
 
@@ -109,5 +110,20 @@ reportOptions.customData.data.push(
 );
 
 generate(reportOptions);
+
+const legacyReportPath = path.join(jsonDir, "cucumber-report.html");
+const redirectHtml = `<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="refresh" content="0; url=./reports/index.html">
+  <title>Automation Report</title>
+</head>
+<body>
+  <p>Redirecting to <a href="./reports/index.html">Automation Report</a>...</p>
+</body>
+</html>
+`;
+fs.writeFileSync(legacyReportPath, redirectHtml, "utf8");
 
 console.log("Report Generated Successfully!");
