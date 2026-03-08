@@ -100,6 +100,31 @@ jobs:
     runs-on: ubuntu-latest
     if: always()
     steps:
+      - name: Download API artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: api-test-artifacts
+          path: artifacts/api
+
+      - name: Download UI artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ui-test-artifacts
+          path: artifacts/ui
+
+      - name: Install wkhtmltopdf
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wkhtmltopdf
+
+      - name: Generate report PDFs
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/pdf
+          wkhtmltopdf --enable-local-file-access --javascript-delay 3000 artifacts/api/test-results/reports/index.html artifacts/pdf/api-report.pdf
+          wkhtmltopdf --enable-local-file-access --javascript-delay 3000 artifacts/ui/test-results/reports/index.html artifacts/pdf/ui-report.pdf
+
       - name: Send execution summary email
         uses: dawidd6/action-send-mail@v3
         with:
@@ -112,14 +137,51 @@ jobs:
             QA Automation CI (${{ github.ref_name }}) - API: ${{ needs.api-tests.result }}, UI: ${{ needs.ui-tests.result }}
           to: ${{ secrets.QA_REPORT_TO_EMAIL }}
           from: ${{ secrets.QA_REPORT_FROM_EMAIL }}
-          body: |
-            Workflow: ${{ github.workflow }}
-            Branch: ${{ github.ref_name }}
-            Environment: ${{ (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main') && 'PRD' || 'STG' }}
-            API Job Result: ${{ needs.api-tests.result }}
-            UI Job Result: ${{ needs.ui-tests.result }}
-            Run URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          attachments: |
+            artifacts/pdf/api-report.pdf
+            artifacts/pdf/ui-report.pdf
+          html_body: |
+            <h2>QA Automation Execution Summary</h2>
+            <p>
+              <strong>Overall Result:</strong>
+              ${{ (needs.api-tests.result == 'success' && needs.ui-tests.result == 'success') && 'SUCCESS' || 'FAILURE' }}
+            </p>
 
-            Artifacts:
-            - api-test-artifacts
-            - ui-test-artifacts
+            <table border="1" cellpadding="8" cellspacing="0" style="border-collapse:collapse;">
+              <tr>
+                <th align="left">Field</th>
+                <th align="left">Value</th>
+              </tr>
+              <tr>
+                <td>Workflow</td>
+                <td>${{ github.workflow }}</td>
+              </tr>
+              <tr>
+                <td>Branch</td>
+                <td>${{ github.ref_name }}</td>
+              </tr>
+              <tr>
+                <td>Environment</td>
+                <td>${{ (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main') && 'PRD' || 'STG' }}</td>
+              </tr>
+              <tr>
+                <td>API Job Result</td>
+                <td>${{ needs.api-tests.result == 'success' && 'PASS' || needs.api-tests.result }}</td>
+              </tr>
+              <tr>
+                <td>UI Job Result</td>
+                <td>${{ needs.ui-tests.result == 'success' && 'PASS' || needs.ui-tests.result }}</td>
+              </tr>
+              <tr>
+                <td>Run URL</td>
+                <td><a href="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}">Open workflow run</a></td>
+              </tr>
+              <tr>
+                <td>Artifacts</td>
+                <td>
+                  <a href="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}#artifacts">Open artifacts</a><br/>
+                  api-test-artifacts<br/>
+                  ui-test-artifacts
+                </td>
+              </tr>
+            </table>
