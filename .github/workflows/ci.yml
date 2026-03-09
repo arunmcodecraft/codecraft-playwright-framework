@@ -236,25 +236,42 @@ jobs:
             QA Automation CI (${{ github.ref_name }}) - API: ${{ needs.api-tests.result }}, UI: ${{ needs.ui-tests.result }}
           to: ${{ secrets.QA_REPORT_TO_EMAIL }}
           from: ${{ secrets.QA_REPORT_FROM_EMAIL }}
-          body: |
-            QA Automation Execution Summary
+          html_body: |
+            <div style="font-family: Arial, sans-serif; line-height: 1.5; color: #111827;">
+              <h2 style="margin: 0 0 12px 0;">QA Automation Execution Summary</h2>
 
-            Overall Result: ${{ (needs.api-tests.result == 'success' && needs.ui-tests.result == 'success') && 'SUCCESS' || 'FAILURE' }}
-            Workflow: ${{ github.workflow }}
-            Branch: ${{ github.ref_name }}
-            Environment: ${{ (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main') && 'PRD' || 'STG' }}
-            API Job Result: ${{ needs.api-tests.result == 'success' && 'PASS' || needs.api-tests.result }}
-            API Executed: ${{ needs.api-tests.outputs.executed }}
-            API Passed: ${{ needs.api-tests.outputs.passed }}
-            API Failed: ${{ needs.api-tests.outputs.failed }}
-            API Skipped: ${{ needs.api-tests.outputs.skipped }}
-            API Duration (ms): ${{ needs.api-tests.outputs.duration_ms }}
-            UI Job Result: ${{ needs.ui-tests.result == 'success' && 'PASS' || needs.ui-tests.result }}
-            UI Executed: ${{ needs.ui-tests.outputs.executed }}
-            UI Passed: ${{ needs.ui-tests.outputs.passed }}
-            UI Failed: ${{ needs.ui-tests.outputs.failed }}
-            UI Skipped: ${{ needs.ui-tests.outputs.skipped }}
-            UI Duration (ms): ${{ needs.ui-tests.outputs.duration_ms }}
-            Run URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-            Artifacts: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}#artifacts
-          attachments: artifacts/api/test-results/cucumber-report.html,artifacts/ui/test-results/cucumber-report.html,artifacts/api/test-results/reports/index.html,artifacts/ui/test-results/reports/index.html
+              <p style="margin: 4px 0;">
+                <strong>Overall Result:</strong>
+                <span style="color: ${{ (needs.api-tests.result == 'success' && needs.ui-tests.result == 'success') && '#15803d' || '#dc2626' }}; font-weight: 700;">
+                  ${{ (needs.api-tests.result == 'success' && needs.ui-tests.result == 'success') && 'SUCCESS' || 'FAILURE' }}
+                </span>
+              </p>
+              <p style="margin: 4px 0;"><strong>Workflow:</strong> ${{ github.workflow }}</p>
+              <p style="margin: 4px 0;"><strong>Branch:</strong> ${{ github.ref_name }}</p>
+              <p style="margin: 4px 0;"><strong>Environment:</strong> ${{ (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main') && 'PRD' || 'STG' }}</p>
+
+              <p style="margin: 12px 0 4px 0;"><strong>API Job Result:</strong>
+                <span style="color: ${{ needs.api-tests.result == 'success' && '#15803d' || '#dc2626' }}; font-weight: 700;">
+                  ${{ needs.api-tests.result == 'success' && 'PASS' || needs.api-tests.result }}
+                </span>
+              </p>
+              <p style="margin: 4px 0;"><strong>API Executed:</strong> ${{ needs.api-tests.outputs.executed }}</p>
+              <p style="margin: 4px 0;"><strong>API Passed:</strong> <span style="color: #15803d; font-weight: 700;">${{ needs.api-tests.outputs.passed }}</span></p>
+              <p style="margin: 4px 0;"><strong>API Failed:</strong> <span style="color: #dc2626; font-weight: 700;">${{ needs.api-tests.outputs.failed }}</span></p>
+              <p style="margin: 4px 0;"><strong>API Skipped:</strong> <span style="color: #2563eb; font-weight: 700;">${{ needs.api-tests.outputs.skipped }}</span></p>
+              <p style="margin: 4px 0;"><strong>API Duration (ms):</strong> ${{ needs.api-tests.outputs.duration_ms }}</p>
+
+              <p style="margin: 12px 0 4px 0;"><strong>UI Job Result:</strong>
+                <span style="color: ${{ needs.ui-tests.result == 'success' && '#15803d' || '#dc2626' }}; font-weight: 700;">
+                  ${{ needs.ui-tests.result == 'success' && 'PASS' || needs.ui-tests.result }}
+                </span>
+              </p>
+              <p style="margin: 4px 0;"><strong>UI Executed:</strong> ${{ needs.ui-tests.outputs.executed }}</p>
+              <p style="margin: 4px 0;"><strong>UI Passed:</strong> <span style="color: #15803d; font-weight: 700;">${{ needs.ui-tests.outputs.passed }}</span></p>
+              <p style="margin: 4px 0;"><strong>UI Failed:</strong> <span style="color: #dc2626; font-weight: 700;">${{ needs.ui-tests.outputs.failed }}</span></p>
+              <p style="margin: 4px 0;"><strong>UI Skipped:</strong> <span style="color: #2563eb; font-weight: 700;">${{ needs.ui-tests.outputs.skipped }}</span></p>
+              <p style="margin: 4px 0;"><strong>UI Duration (ms):</strong> ${{ needs.ui-tests.outputs.duration_ms }}</p>
+
+              <p style="margin: 12px 0 4px 0;"><strong>Run URL:</strong> <a href="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}">${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}</a></p>
+              <p style="margin: 4px 0;"><strong>Artifacts:</strong> <a href="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}#artifacts">${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}#artifacts</a></p>
+            </div>
