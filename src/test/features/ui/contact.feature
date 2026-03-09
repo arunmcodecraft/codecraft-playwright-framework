@@ -1,6 +1,6 @@
 Feature: Contact Form Management
 
-  @Key:Contact_01 @smoke
+  @Key:Contact_01 @smoke @regression
   Scenario: Fill contact form with valid data
     Given User navigates to the application
     When User logs in with username "<username>" and password "<password>"
