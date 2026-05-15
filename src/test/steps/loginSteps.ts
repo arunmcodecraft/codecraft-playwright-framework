@@ -52,7 +52,7 @@ When('User clicks on the login button', async function () {
 // ----------------- Invalid Login -----------------
 Then('Login should fail with error message {string}', async function (errorMessage) {
     fixture.logger.info(`Verifying login failure with error message: "${errorMessage}"`);
-    const failureMessage = await loginPage.getInvalidCredentialsErrorMessage();
+    const failureMessage = await loginPage.getEnterUsernameErrorMessage();
     fixture.logger.info(`Actual error message on page: ${await failureMessage.textContent()}`);
     await expect(failureMessage).toBeVisible();
     await expect(failureMessage).toHaveText(errorMessage);
@@ -74,7 +74,7 @@ Then('User Clicks on password field', async function () {
 
 Then('Check the {string} error message', async function (errorMessage) {
     fixture.logger.info(`Checking for error message: "${errorMessage}"`);
-    const failureMessage = loginPage.getEnterEmailErrorMessage();
+    const failureMessage = loginPage.getInvalidPasswordErrorMessage();
     fixture.logger.info(`Actual message found: ${await (await failureMessage).textContent()}`);
     await expect(failureMessage).toBeVisible();
     await expect(failureMessage).toHaveText(errorMessage);

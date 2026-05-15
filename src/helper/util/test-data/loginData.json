@@ -1,23 +1,16 @@
 [
   {
     "Key": "Login_03",
-    "Env": "STG",
-    "userName": "arunfeder@gmail.com",
-    "password": "Apple@1234567",
+    "Env": "PRD",
+    "userName": "QAa1",
+    "password": "igz123",
     "Designation": "Tester"
   },
   {
-    "Key": "Login_03",
-    "Env": "DEV",
-    "userName": "arunfeder@gmail.com",
-    "password": "Apple@1234567",
-    "Designation": "Dev"
-  },
-  {
-    "Key": "Login_03",
+    "Key": "Login_04",
     "Env": "PRD",
-    "userName": "arunfeder@gmail.com",
-    "password": "Apple@1234567",
+    "userName": "QAa",
+    "password": "igz1234",
     "Designation": "QA"
   }
 ]

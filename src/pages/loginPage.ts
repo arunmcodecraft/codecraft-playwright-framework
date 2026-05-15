@@ -9,16 +9,16 @@ export default class LoginPage {
     }
 
     private Elements = {
-        usernameInput: '[id="mat-input-0"]',
-        passwordInput: '[id="mat-input-1"]',
-        loginBtn: "//button[text()=' Log In ']",
-        invalidCredentialsErrorMessage: "//span[text()='Invalid credentials']",
-        enterEmailErrorMessage: "//mat-error[text()=' Please enter the email ']"
+        usernameInput: '[id="username"]',
+        passwordInput: '[type="password"]',
+        loginBtn: "//button[@class='ig-button authentication-submit-button']",
+        invalidPasswordErrorMessage: "//p[normalize-space()='Incorrect password!']",
+        invalidUsernameErrorMessage: "//p[normalize-space()='Username does not exist!']"
     }
 
     async navigateToLoginPage() {
         await this.base.goto("/login");
-        await expect(this.page).toHaveTitle("Asset Management");
+        await expect(this.page).toHaveTitle("iGoalZero");
     }
 
     async clickOnUserNameField() {
@@ -42,14 +42,13 @@ export default class LoginPage {
     }
 
     // Get locator for invalid credentials error message
-    async getInvalidCredentialsErrorMessage() {
-        await this.base.waitForElement(this.Elements.invalidCredentialsErrorMessage);
-        return this.page.locator(this.Elements.invalidCredentialsErrorMessage);
+    getInvalidPasswordErrorMessage() {
+        return this.page.locator(this.Elements.invalidPasswordErrorMessage);
     }
 
     // Get locator for missing email error message
-    getEnterEmailErrorMessage() {
-        return this.page.locator(this.Elements.enterEmailErrorMessage);
+    getEnterUsernameErrorMessage() {
+        return this.page.locator(this.Elements.invalidUsernameErrorMessage);
     }
 
     async loginUser(user: string, password: string) {
@@ -60,6 +59,6 @@ export default class LoginPage {
 
     
     async navigateToDashboardPage() {
-        await expect(this.page).toHaveTitle("Asset Management");
+        await expect(this.page).toHaveTitle("iGoalZero");
     }
 }

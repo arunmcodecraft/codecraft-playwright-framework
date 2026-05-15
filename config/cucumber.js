@@ -6,7 +6,8 @@ module.exports = {
         },
         paths: [
             "src/test/features/login.feature",
-            "src/test/features/dashboard.feature"
+            "src/test/features/dashboard.feature",
+            "src/test/features/aModuleRecordCreation.feature"
         ],
         publishQuiet: true,
         dryRun: false,

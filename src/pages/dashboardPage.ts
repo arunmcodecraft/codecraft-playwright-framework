@@ -10,9 +10,8 @@ export default class DashBoardPage {
   }
 
   private Elements = {
-    profileIcon: '[title="Logout"]',
-    logoutButton: '//li[text()=" Logout "]',
-    logoutPopupYesButton:'//button[text()=" Yes "]'
+    profileIcon: "//span[contains(@class,'userBadge')]",
+    logoutButton: "//a[normalize-space()='Logout']"
   };
 
   async clickOnProfileIcon() {
@@ -23,9 +22,6 @@ export default class DashBoardPage {
     await this.base.waitAndClick(this.Elements.logoutButton);
   }
 
-   async clickOnLogoutPopupYesButton() {
-    await this.base.waitAndClick(this.Elements.logoutPopupYesButton);
-  }
   
   async navigateBackToLoginPage() {
     await this.base.waitForURL("/login");

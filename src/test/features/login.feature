@@ -15,6 +15,12 @@ Feature: Login Feature
 
   @dataFile:helper/util/test-data/loginData.json 
   @Key:Login_03 @sanity
-  Scenario: Login with invalid credentials
+  Scenario: Login with invalid username
     When User logs in with username "<userName>" and password "<password>"
-    Then Login should fail with error message "Invalid credentials"
+    Then Login should fail with error message "Username does not exist!"
+
+@dataFile:helper/util/test-data/loginData.json 
+  @Key:Login_04 @sanity
+  Scenario: Login with invalid password
+    When User logs in with username "<userName>" and password "<password>"
+    Then Check the "Incorrect password!" error message

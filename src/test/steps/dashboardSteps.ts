@@ -24,11 +24,6 @@ Then('Clicks on the Logout button', async function (){
 await dashBoardPage.clickOnLogoutButton();
 });
 
-Then('Click on Yes button on the logout popup', async function (){
-await dashBoardPage.clickOnLogoutPopupYesButton();
-});
-
-
 Then('User should logout and navigated to Login Page',async  function(){
 await dashBoardPage.navigateBackToLoginPage();
 })
