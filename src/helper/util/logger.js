@@ -1,6 +1,19 @@
+const fs = require("fs");
+const path = require("path");
 const { transports, format } = require("winston");
 
+function sanitizeScenarioName(name) {
+    return name.replace(/[<>:"/\\|?*\x00-\x1F]/g, "_").replace(/\s+/g, "_");
+}
+
 function options(scenarioName) {
+    const safeScenarioName = sanitizeScenarioName(scenarioName);
+    const logDir = path.join("test-results", "logs", safeScenarioName);
+
+    if (!fs.existsSync(logDir)) {
+        fs.mkdirSync(logDir, { recursive: true });
+    }
+
     const commonFormat = format.combine(
         format.timestamp({ format: "MMM-DD-YYYY HH:mm:ss" }),
         format.align(),
@@ -14,7 +27,7 @@ function options(scenarioName) {
                 format: commonFormat
             }),
             new transports.File({
-                filename: `test-results/logs/${scenarioName}/log.log`,
+                filename: path.join(logDir, "log.log"),
                 level: "info",
                 format: commonFormat
             })

@@ -1,0 +1,23 @@
+{
+  "aModuleForm": {
+    "firstName": "Anupama_M",
+    "phoneNumber": "123456789",
+    "radioOption": "A",
+    "date": {
+      "day": 10,
+      "month": "May",
+      "year": 2026
+    },
+    "time": {
+      "hour": 5,
+      "minute": 30,
+      "second": 0,
+      "period": "PM"
+    },
+    "file": {
+      "path": "C:/Users/Anupama/Desktop/igz testdata.txt",
+      "label": "Test Data File"
+    },
+    "dropdownOption": "No"
+  }
+}

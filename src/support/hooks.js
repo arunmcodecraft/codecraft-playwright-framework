@@ -18,6 +18,8 @@ const { getEnv } = require("../helper/env/env");
 const { HTMLSubStepLogger } = require("./htmllSubStepLogger");
 const LoginPage = require("../pages/loginPage");
 const ContactPage = require("../pages/contactPage");
+const DashBoardPage = require("../pages/dashboardPage");
+const ModuleRecordPage = require("../pages/aModuleRecordCreationPage");
 const { ApiContext } = require("../helper/api/context/ApiContext");
 
 let browser;
@@ -53,6 +55,35 @@ function findApiCaseByKeyEnvCase(rows, key, env, caseId) {
     });
 }
 
+function resolveDataFilePath(tag) {
+    if (!tag) {
+        return null;
+    }
+    const relativePath = tag.name.replace("@dataFile:", "").trim();
+    if (!relativePath) {
+        return null;
+    }
+    return path.isAbsolute(relativePath)
+        ? relativePath
+        : path.resolve(__dirname, "..", relativePath);
+}
+
+async function loadDataFile(filePath) {
+    if (!filePath) {
+        return null;
+    }
+    if (!fs.existsSync(filePath)) {
+        throw new Error(`Data file does not exist: ${filePath}`);
+    }
+    if (filePath.toLowerCase().endsWith(".json")) {
+        return await fs.readJson(filePath);
+    }
+    if (filePath.toLowerCase().endsWith(".csv")) {
+        return await CSVParser.parseData(filePath, "|");
+    }
+    throw new Error(`Unsupported data file extension for: ${filePath}`);
+}
+
 function replaceStepPlaceholders(pickle, sourceData) {
     pickle.steps.forEach((step, index) => {
         pickle.steps[index].text = step.text.replace(/<([\w.]+)>/g, (_, nestedKey) => {
@@ -72,6 +103,14 @@ function replaceStepPlaceholders(pickle, sourceData) {
     });
 }
 
+function sanitizeScenarioName(name) {
+    return String(name)
+        .replace(/[<>:\"/\\|?*\x00-\x1F]/g, "_")
+        .replace(/\s+/g, "_")
+        .replace(/_+/g, "_")
+        .replace(/^_+|_+$/g, "");
+}
+
 BeforeAll(async function () {
     getEnv();
 
@@ -87,10 +126,12 @@ BeforeAll(async function () {
 
 Before(async function ({ pickle }) {
     const scenarioName = `${pickle.name}_${pickle.id}`;
+    const safeScenarioName = sanitizeScenarioName(scenarioName);
+    const safeScenarioTitle = sanitizeScenarioName(pickle.name);
     const env = process.env.ENV || "STG";
     fixture.env = env;
     const isApiScenario = pickle.tags.some((tag) => tag.name === "@api");
-    fixture.logger = createLogger(options(scenarioName));
+    fixture.logger = createLogger(options(safeScenarioName));
     fixture.logger.info(`Starting Scenario: ${pickle.name}`);
     fixture.api.context = new ApiContext();
     fixture.api.activeExpected = {};
@@ -102,6 +143,8 @@ Before(async function ({ pickle }) {
     const key = keyTag ? keyTag.name.replace("@Key:", "").trim() : null;
     const caseTag = pickle.tags.find((tag) => tag.name.startsWith("@Case:"));
     const caseId = caseTag ? caseTag.name.replace("@Case:", "").trim() : null;
+    const dataFileTag = pickle.tags.find((tag) => tag.name.startsWith("@dataFile:"));
+    const dataFilePath = resolveDataFilePath(dataFileTag);
 
     if (key) {
         if (isApiScenario) {
@@ -125,10 +168,19 @@ Before(async function ({ pickle }) {
         } else {
         fixture.api.testData = {};
         fixture.api.activeExpected = {};
-        const testData = findDataByKeyAndEnv(allData, key, env);
+        let sourceData = allData;
+
+        if (dataFilePath) {
+            sourceData = await loadDataFile(dataFilePath);
+            if (fixture.logger) {
+                fixture.logger.info(`Loaded scenario data from file -> ${dataFilePath}`);
+            }
+        }
+
+        const testData = findDataByKeyAndEnv(sourceData, key, env);
 
         if (!testData) {
-            throw new Error(`No CSV data found for Key=${key} in Env=${env}`);
+            throw new Error(`No data found for Key=${key} in Env=${env}${dataFilePath ? ` using file ${dataFilePath}` : ""}`);
         }
 
         if (testData.Group) {
@@ -173,8 +225,8 @@ Before(async function ({ pickle }) {
         });
 
         await context.tracing.start({
-            name: scenarioName,
-            title: pickle.name,
+            name: safeScenarioName,
+            title: safeScenarioTitle,
             screenshots: true,
             snapshots: true,
             sources: true
@@ -185,7 +237,9 @@ Before(async function ({ pickle }) {
 
         fixture.pages = {
             loginPage: new LoginPage(fixture.page, fixture.subStepLogger),
-            contactPage: new ContactPage(fixture.page, fixture.subStepLogger)
+            contactPage: new ContactPage(fixture.page, fixture.subStepLogger),
+            dashboardPage: new DashBoardPage(fixture.page, fixture.subStepLogger),
+            aModuleRecordCreationPage: new ModuleRecordPage(fixture.page, fixture.subStepLogger)
         };
         fixture.logger.info("Page objects initialized for scenario.");
     } else {
@@ -239,8 +293,8 @@ After(async function ({ pickle, result }) {
     }
 
     if (result && result.status === Status.PASSED && fixture.page) {
-        const img = await fixture.page.screenshot({ path: `./test-results/screenshots/${pickle.name}.png`, type: "png" });
-        await this.attach(img, "image/png");
+            const screenshotFileName = sanitizeScenarioName(pickle.name) || pickle.id;
+            const img = await fixture.page.screenshot({ path: `./test-results/screenshots/${screenshotFileName}.png`, type: "png" });
 
         const videoObj = fixture.page.video();
         const videoPath = videoObj ? await videoObj.path() : null;

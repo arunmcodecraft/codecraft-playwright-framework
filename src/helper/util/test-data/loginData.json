@@ -1,0 +1,16 @@
+[
+  {
+    "Key": "Login_03",
+    "Env": "STG",
+    "userName": "invalidUser",
+    "password": "validPass",
+    "expectedError": "Username does not exist!"
+  },
+  {
+    "Key": "Login_04",
+    "Env": "STG",
+    "userName": "QAa",
+    "password": "invalidPass",
+    "expectedError": "Incorrect password!"
+  }
+]

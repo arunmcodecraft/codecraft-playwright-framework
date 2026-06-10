@@ -7,18 +7,17 @@ class LoginPage {
         this.logger = logger;
         this.base = new PlaywrightWrapper(page, logger);
         this.Elements = {
-            usernameInput: "#username",
-            passwordInput: "#password",
-            loginBtn: "#submit",
-            logoutBtn: "//a[text()='Log out']",
-            successMessage: "//h1[contains(normalize-space(),'Logged In Successfully')]",
-            loginPageTitle: "Test Login | Practice Test Automation"
+            usernameInput: '[id="username"]',
+            passwordInput: '[type="password"]',
+            loginBtn: "//button[@class='ig-button authentication-submit-button']",
+            invalidPasswordErrorMessage: "//p[normalize-space()='Incorrect password!']",
+            invalidUsernameErrorMessage: "//p[normalize-space()='Username does not exist!']"
         };
     }
 
     async navigateToLoginPage() {
-        await this.base.goto("practice-test-login/");
-        await expect(this.page).toHaveTitle(this.Elements.loginPageTitle);
+        await this.base.goto("/login");
+        await expect(this.page).toHaveTitle("iGoalZero");
     }
 
     async clickOnUserNameField() {
@@ -30,40 +29,55 @@ class LoginPage {
     }
 
     async enterUserName(user) {
-        await this.base.typeText(this.Elements.usernameInput, user, "Username");
+        await this.base.typeText(this.Elements.usernameInput, user);
     }
 
     async enterPassword(password) {
-        await this.base.typePassword(this.Elements.passwordInput, password, "Password");
+        await this.base.typeText(this.Elements.passwordInput, password);
     }
 
     async clickLoginButton() {
-        await this.base.waitAndClick(this.Elements.loginBtn, "Login");
+        await this.base.waitAndClick(this.Elements.loginBtn);
     }
 
-    async clickLogoutButton() {
-        await this.base.waitAndClick(this.Elements.logoutBtn, "Logout");
+    getInvalidPasswordErrorMessage() {
+        return this.page.locator(this.Elements.invalidPasswordErrorMessage);
     }
 
-    async verifySuccessfulLogin() {
-        await this.base.waitForURL(/logged-in-successfully/);
-        await this.base.waitForElement(this.Elements.logoutBtn);
-        return this.page.locator(this.Elements.successMessage).isVisible();
-    }
-
-    async verifyBackToLogin() {
-        await expect(this.page).toHaveTitle(this.Elements.loginPageTitle);
+    getEnterUsernameErrorMessage() {
+        return this.page.locator(this.Elements.invalidUsernameErrorMessage);
     }
 
     async loginUser(user, password) {
-        await this.enterUserName(user);
-        await this.enterPassword(password);
-        await this.clickLoginButton();
+        try {
+            await this.enterUserName(user);
+            await this.enterPassword(password);
+            await this.clickLoginButton();
+        } catch (error) {
+            if (this.logger) {
+                this.logger.error(`Login failed: ${error.message}`);
+            }
+            throw error;
+        }
     }
 
     async navigateToDashboardPage() {
-        await this.base.goto("logged-in-successfully/");
-        await this.base.waitForElement(this.Elements.successMessage);
+        try {
+            if (this.logger) {
+                this.logger.info("Verifying navigation to Dashboard page");
+                this.logger.info(`Current URL: ${this.page.url()}`);
+                this.logger.info(`Current title: ${await this.page.title()}`);
+            }
+            await expect(this.page).toHaveTitle("iGoalZero");
+            if (this.logger) {
+                this.logger.info("Dashboard page verification successful");
+            }
+        } catch (error) {
+            if (this.logger) {
+                this.logger.error(`Dashboard verification failed: ${error.message}`);
+            }
+            throw error;
+        }
     }
 }
 

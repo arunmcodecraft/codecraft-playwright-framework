@@ -32,7 +32,7 @@ class PlaywrightWrapper {
     async waitAndClick(locator, objName = "") {
         const element = await this.waitForElement(locator);
         await element.click();
-        await this.logger.success(`Clicked on element: ${objName || locator}`);
+        await this.logger.info(`Clicked on element: ${objName || locator}`);
     }
 
     async navigateTo(link) {
@@ -58,31 +58,31 @@ class PlaywrightWrapper {
     async typeText(locator, text, objName = "") {
         const element = await this.waitForElement(locator);
         await element.fill(text);
-        await this.logger.success(`Typed ${text} into element: ${objName || locator}`);
+        await this.logger.info(`Typed ${text} into element: ${objName || locator}`);
     }
 
     async typePassword(locator, text, objName = "") {
         const element = await this.waitForElement(locator);
         await element.fill(text);
-        await this.logger.success(`Typed ******** into element: ${objName || locator}`);
+        await this.logger.info(`Typed ******** into element: ${objName || locator}`);
     }
 
     async selectOption(locator, value, objName = "") {
         const element = await this.waitForElement(locator);
         await element.selectOption({ label: value });
-        await this.logger.success(`Selected option ${value} in element: ${objName || locator}`);
+        await this.logger.info(`Selected option ${value} in element: ${objName || locator}`);
     }
 
     async check(locator, objName = "") {
         const element = await this.waitForElement(locator);
         await element.check();
-        await this.logger.success(`Checked element: ${objName || locator}`);
+        await this.logger.info(`Checked element: ${objName || locator}`);
     }
 
     async uncheck(locator, objName = "") {
         const element = await this.waitForElement(locator);
         await element.uncheck();
-        await this.logger.success(`Unchecked element: ${objName || locator}`);
+        await this.logger.info(`Unchecked element: ${objName || locator}`);
     }
 
     async getText(locator) {
@@ -109,6 +109,14 @@ class PlaywrightWrapper {
                 .filter(Boolean);
             resolve(result);
         });
+    }
+
+    async uploadFile(locator, filePath, objName = "") {
+        const fileChooserPromise = this.page.waitForEvent('filechooser');
+        await this.page.locator(locator).click();
+        const fileChooser = await fileChooserPromise;
+        await fileChooser.setFiles(filePath);
+        await this.logger.info(`Uploaded file: ${objName || filePath}`);
     }
 }
 

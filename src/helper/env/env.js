@@ -1,15 +1,16 @@
 const dotenv = require("dotenv");
 
 const getEnv = () => {
-    console.log(`process.env.ENV is ${process.env.ENV}`);
-    if (process.env.ENV) {
-        dotenv.config({
-            override: true,
-            path: `src/helper/env/.env.${process.env.ENV}`
-        });
-    } else {
-        console.error("NO ENV PASSED!");
+    const envName = process.env.ENV || "STG";
+    console.log(`process.env.ENV is ${process.env.ENV || "<undefined>"}`);
+    if (!process.env.ENV) {
+        console.warn(`No ENV passed, defaulting to ${envName}`);
     }
+
+    dotenv.config({
+        override: true,
+        path: `src/helper/env/.env.${envName}`
+    });
 };
 
 module.exports = { getEnv };
